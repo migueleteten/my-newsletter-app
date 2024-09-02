@@ -4,18 +4,17 @@
     "description": "Newsletter application for ARCA Grupo Carranza",
     "main": "app.js",
     "scripts": {
-      "start": "node app.js",
-      "dev": "nodemon app.js"
+        "start": "node app.js",
+        "dev": "nodemon app.js"
     },
     "dependencies": {
-      "express": "^4.18.2",
-      "ejs": "^3.1.6",
-      "mongoose": "^6.8.0",
-      "nodemailer": "^6.8.0",
-      "body-parser": "^1.20.1"
+        "body-parser": "^1.20.1",
+        "ejs": "^3.1.6",
+        "express": "^4.18.2",
+        "mongoose": "^6.8.0",
+        "nodemailer": "^6.8.0"
     },
     "devDependencies": {
-      "nodemon": "^2.0.22"
+        "nodemon": "^3.1.4"
     }
-  }
-  
+}
