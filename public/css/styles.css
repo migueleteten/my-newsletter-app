@@ -27,3 +27,40 @@ main {
 .card-action .btn {
     background-color: #E37222; /* Botones con color corporativo */
 }
+
+.input-field {
+    margin-bottom: 20px; /* Añade espacio entre los campos de entrada */
+}
+
+.label-container {
+    margin-bottom: 20px; /* Añade espacio específicamente para el label */
+}
+
+.input-field label {
+    font-size: 1rem; /* Ajustar el tamaño de la fuente */
+    color: #37424A; /* Color del texto del label */
+    display: inline-block; /* Asegura que el label ocupe su propio espacio */
+    margin: 0; /* Remover cualquier margen predeterminado */
+    padding: 0; /* Remover cualquier padding predeterminado */
+}
+
+.color-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr); /* Crear una cuadrícula de 4 columnas */
+    gap: 10px; /* Espacio entre los círculos */
+    margin-top: 0; /* Asegura que no haya margen superior */
+}
+
+.color-circle {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: border 0.3s ease;
+}
+
+.color-circle:hover,
+.color-circle.selected {
+    border: 2px solid #000; /* Resaltar el círculo seleccionado */
+}

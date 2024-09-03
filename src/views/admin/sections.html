@@ -24,7 +24,7 @@
             <!-- Botón para añadir una nueva sección -->
             <div class="row">
                 <div class="col s12">
-                    <a class="btn waves-effect waves-light" href="#modal-add-section" style="background-color: #E37222;">
+                    <a class="btn waves-effect waves-light modal-trigger" href="#modal-add-section" style="background-color: #E37222;">
                         Añadir Nueva Sección
                     </a>
                 </div>
@@ -68,53 +68,62 @@
                     <label for="section-title">Título de la Sección</label>
                 </div>
                 <div class="input-field">
-                    <select id="section-color">
-                        <option value="" disabled selected>Elige un color</option>
-                        <option value="color1" style="background-color: #E37222;">Color 1</option>
-                        <option value="color2" style="background-color: #37424A;">Color 2</option>
-                        <option value="color2" style="background-color: #37424A;">Color 2</option>
-                        <option value="color2" style="background-color: #37424A;">Color 2</option>
-                        <option value="color2" style="background-color: #37424A;">Color 2</option>
-                        <option value="color2" style="background-color: #37424A;">Color 2</option>
-                        <option value="color2" style="background-color: #37424A;">Color 2</option>
-                        <option value="color2" style="background-color: #37424A;">Color 2</option>
-                        <option value="color2" style="background-color: #37424A;">Color 2</option>
-                        <option value="color2" style="background-color: #37424A;">Color 2</option>
-                        <option value="color2" style="background-color: #37424A;">Color 2</option>
-                        <option value="color2" style="background-color: #37424A;">Color 2</option>
-                        <option value="color2" style="background-color: #37424A;">Color 2</option>
-                        <!-- Añadir más opciones de color según los colores corporativos -->
-                    </select>
-                    <label for="section-color">Color de la Sección</label>
+                    <div class="label-container">
+                        <label for="section-color">Color de la Sección</label>
+                    </div>
+                    <div class="color-grid">
+                        <input type="hidden" id="section-color" name="section-color" required>
+                        <div class="color-circle" style="background-color: #E37222;" data-color="#E37222"></div>
+                        <div class="color-circle" style="background-color: #37424A;" data-color="#37424A"></div>
+                        <div class="color-circle" style="background-color: #2873a9;" data-color="#2873a9"></div>
+                        <div class="color-circle" style="background-color: #7149a3;" data-color="#7149a3"></div>
+                        <div class="color-circle" style="background-color: #c34040;" data-color="#c34040"></div>
+                        <div class="color-circle" style="background-color: #70ad4a;" data-color="#70ad4a"></div>
+                        <div class="color-circle" style="background-color: #d1c44b;" data-color="#d1c44b"></div>
+                        <div class="color-circle" style="background-color: #904289;" data-color="#904289"></div>
+                        <div class="color-circle" style="background-color: #48bcbb;" data-color="#48bcbb"></div>
+                        <div class="color-circle" style="background-color: #697b88;" data-color="#697b88"></div>
+                        <div class="color-circle" style="background-color: #80a37b;" data-color="#80a37b"></div>
+                        <div class="color-circle" style="background-color: #c9c97f;" data-color="#c9c97f"></div>
+                        <div class="color-circle" style="background-color: #dc938d;" data-color="#dc938d"></div>
+                        <div class="color-circle" style="background-color: #ad7c9e;" data-color="#ad7c9e"></div>
+                        <div class="color-circle" style="background-color: #a29ddc;" data-color="#a29ddc"></div>
+                        <div class="color-circle" style="background-color: #122533;" data-color="#122533"></div>
+                    </div>
                 </div>
             </form>
         </div>
         <div class="modal-footer">
             <a href="#!" class="modal-close btn waves-effect waves-green">Cancelar</a>
-            <a href="#!" class="btn waves-effect waves-light" onclick="addSection()">Guardar</a>
+            <button type="submit" class="btn waves-effect waves-light" form="add-section-form">Guardar</button>
+        </div>        
+    </div>
+
+    <!-- Modal para añadir una nueva subsección -->
+    <div id="modal-add-subsection" class="modal">
+        <div class="modal-content">
+            <h5>Nueva Subsección</h5>
+            <form id="add-subsection-form">
+                <div class="input-field">
+                    <input id="subsection-title" type="text" class="validate" required>
+                    <label for="subsection-title">Título de la Subsección</label>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <a href="#!" class="modal-close btn waves-effect waves-green">Cancelar</a>
+            <button type="submit" class="btn waves-effect waves-light" form="add-subsection-form">Guardar</button>
         </div>
     </div>
 
     <!-- Incluir el footer -->
     <div id="footer"></div>
 
-    <!-- Importar Materialize JS y jQuery -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+    <!-- Importar jQuery (primero) y Materialize JS -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
     <!-- Script para cargar header y footer -->
-    <script>
-        $(document).ready(function(){
-            $('#header').load('/partials/header.html');
-            $('#footer').load('/partials/footer.html');
-            $('.collapsible').collapsible();
-            $('select').formSelect();
-            $('.modal').modal();
-        });
-
-        function addSection() {
-            // Aquí se implementará la lógica para añadir una nueva sección
-            console.log("Sección añadida");
-        }
-    </script>
+    <script src="/js/sections.js"></script>
+    <script src="/js/common.js"></script>
 </body>
 </html>

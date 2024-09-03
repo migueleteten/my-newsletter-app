@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const passport = require('passport');
+const sectionController = require('../controllers/sectionController');
 const path = require('path');
 
 
@@ -50,5 +51,24 @@ router.get('/admin/sections', (req, res) => {
         res.redirect('/');
     }
 });
+
+// Ruta para crear una subsección
+router.post('/api/sections/:sectionId/subsections', sectionController.createSubsection);
+
+// Rutas para servir las vistas de administración
+router.get('/admin/sections', (req, res) => {
+    if (req.isAuthenticated() && req.user.isAdmin) {
+        res.sendFile(path.join(__dirname, '../views/admin/sections.html'));
+    } else {
+        res.redirect('/');
+    }
+});
+
+// Rutas para la gestión de secciones
+router.get('/api/sections', sectionController.listSections);
+router.post('/api/sections', sectionController.createSection);
+router.get('/api/sections/:id', sectionController.getSectionById);
+router.put('/api/sections/:id', sectionController.updateSection);
+router.delete('/api/sections/:id', sectionController.deleteSection);
 
 module.exports = router;

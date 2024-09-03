@@ -3,8 +3,16 @@ const express = require('express');
 const session = require('express-session');
 const passport = require('passport');
 require('./config/googleAuth');
+const connectDB = require('./config/db');
+
+// Conectar a la base de datos
+connectDB();
 
 const app = express();
+
+// Middleware para manejar datos JSON y urlencoded
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 // Configurar sesiones
 app.use(session({ secret: 'secret', resave: false, saveUninitialized: true }));
