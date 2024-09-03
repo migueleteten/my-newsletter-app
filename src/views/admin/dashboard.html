@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Administración - ARCA Grupo Carranza</title>
+    <!-- Importar Materialize CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css" rel="stylesheet">
+    <!-- Importar Iconos de Google -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <!-- Estilos personalizados -->
+    <link href="/css/styles.css" rel="stylesheet">
+</head>
+<body>
+
+    <!-- Incluir el header -->
+    <div id="header"></div>
+
+    <!-- Contenido principal -->
+    <main>
+        <div class="container">
+            <h4>Panel de Control</h4>
+            <div class="row">
+                <div class="col s12 m4">
+                    <div class="card dashboard-card">
+                        <div class="card-content center-align">
+                            <i class="material-icons">folder</i>
+                            <span class="card-title">Secciones</span>
+                            <p>Gestiona las secciones y subsecciones.</p>
+                        </div>
+                        <div class="card-action center-align">
+                            <a href="/admin/sections" class="btn waves-effect waves-light">Administrar</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col s12 m4">
+                    <div class="card dashboard-card">
+                        <div class="card-content center-align">
+                            <i class="material-icons">article</i>
+                            <span class="card-title">Artículos</span>
+                            <p>Gestiona los artículos publicados.</p>
+                        </div>
+                        <div class="card-action center-align">
+                            <a href="/admin/articles" class="btn waves-effect waves-light">Administrar</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col s12 m4">
+                    <div class="card dashboard-card">
+                        <div class="card-content center-align">
+                            <i class="material-icons">mail</i>
+                            <span class="card-title">Publicaciones</span>
+                            <p>Envío de correos de publicaciones.</p>
+                        </div>
+                        <div class="card-action center-align">
+                            <a href="/admin/publications" class="btn waves-effect waves-light">Administrar</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Incluir el footer -->
+    <div id="footer"></div>
+
+    <!-- Importar Materialize JS y jQuery -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- Script para cargar header y footer -->
+    <script>
+        $(document).ready(function(){
+            $('#header').load('/partials/header.html');
+            $('#footer').load('/partials/footer.html');
+        });
+    </script>
+</body>
+</html>

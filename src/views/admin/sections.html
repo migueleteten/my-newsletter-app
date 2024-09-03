@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestionar Secciones - ARCA Grupo Carranza</title>
+    <!-- Importar Materialize CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css" rel="stylesheet">
+    <!-- Importar Estilos Personalizados -->
+    <link href="/css/styles.css" rel="stylesheet">
+    <!-- Importar Iconos de Google -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+</head>
+<body>
+
+    <!-- Incluir el header -->
+    <div id="header"></div>
+
+    <!-- Contenido principal -->
+    <main>
+        <div class="container">
+            <h4>Gestionar Secciones y Subsecciones</h4>
+
+            <!-- Botón para añadir una nueva sección -->
+            <div class="row">
+                <div class="col s12">
+                    <a class="btn waves-effect waves-light" href="#modal-add-section" style="background-color: #E37222;">
+                        Añadir Nueva Sección
+                    </a>
+                </div>
+            </div>
+
+            <!-- Lista de secciones y subsecciones -->
+            <ul class="collapsible">
+                <!-- Ejemplo de sección y subsección -->
+                <li>
+                    <div class="collapsible-header">
+                        <i class="material-icons">folder</i>
+                        <span>Nombre de la Sección</span>
+                        <a href="#!" class="secondary-content">
+                            <i class="material-icons">edit</i>
+                        </a>
+                    </div>
+                    <div class="collapsible-body">
+                        <ul>
+                            <li>
+                                <i class="material-icons">subdirectory_arrow_right</i>
+                                <span>Subsección 1</span>
+                                <a href="#!" class="secondary-content">
+                                    <i class="material-icons">edit</i>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </li>
+                <!-- Fin del ejemplo -->
+            </ul>
+        </div>
+    </main>
+
+    <!-- Modal para añadir una nueva sección -->
+    <div id="modal-add-section" class="modal">
+        <div class="modal-content">
+            <h5>Nueva Sección</h5>
+            <form id="add-section-form">
+                <div class="input-field">
+                    <input id="section-title" type="text" class="validate" required>
+                    <label for="section-title">Título de la Sección</label>
+                </div>
+                <div class="input-field">
+                    <select id="section-color">
+                        <option value="" disabled selected>Elige un color</option>
+                        <option value="color1" style="background-color: #E37222;">Color 1</option>
+                        <option value="color2" style="background-color: #37424A;">Color 2</option>
+                        <option value="color2" style="background-color: #37424A;">Color 2</option>
+                        <option value="color2" style="background-color: #37424A;">Color 2</option>
+                        <option value="color2" style="background-color: #37424A;">Color 2</option>
+                        <option value="color2" style="background-color: #37424A;">Color 2</option>
+                        <option value="color2" style="background-color: #37424A;">Color 2</option>
+                        <option value="color2" style="background-color: #37424A;">Color 2</option>
+                        <option value="color2" style="background-color: #37424A;">Color 2</option>
+                        <option value="color2" style="background-color: #37424A;">Color 2</option>
+                        <option value="color2" style="background-color: #37424A;">Color 2</option>
+                        <option value="color2" style="background-color: #37424A;">Color 2</option>
+                        <option value="color2" style="background-color: #37424A;">Color 2</option>
+                        <!-- Añadir más opciones de color según los colores corporativos -->
+                    </select>
+                    <label for="section-color">Color de la Sección</label>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <a href="#!" class="modal-close btn waves-effect waves-green">Cancelar</a>
+            <a href="#!" class="btn waves-effect waves-light" onclick="addSection()">Guardar</a>
+        </div>
+    </div>
+
+    <!-- Incluir el footer -->
+    <div id="footer"></div>
+
+    <!-- Importar Materialize JS y jQuery -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- Script para cargar header y footer -->
+    <script>
+        $(document).ready(function(){
+            $('#header').load('/partials/header.html');
+            $('#footer').load('/partials/footer.html');
+            $('.collapsible').collapsible();
+            $('select').formSelect();
+            $('.modal').modal();
+        });
+
+        function addSection() {
+            // Aquí se implementará la lógica para añadir una nueva sección
+            console.log("Sección añadida");
+        }
+    </script>
+</body>
+</html>

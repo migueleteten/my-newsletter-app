@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inicio de Sesión - ARCA Grupo Carranza</title>
+    <!-- Importar Materialize CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css" rel="stylesheet">
+    <!-- Importar Iconos de Google -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <!-- Estilos personalizados -->
+    <style>
+        body {
+            display: flex;
+            min-height: 100vh;
+            flex-direction: column;
+            background-color: #f5f5f5;
+        }
+        main {
+            flex: 1 0 auto;
+        }
+        .login-container {
+            max-width: 400px;
+            padding: 20px;
+            margin: auto;
+            margin-top: 10%;
+        }
+        .brand-logo {
+            font-size: 2.5rem;
+            margin-bottom: 30px;
+        }
+        .btn-google {
+            background-color: #4285F4;
+            color: #fff;
+            padding: 10px;
+            text-align: center;
+            border-radius: 5px;
+            margin-top: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .btn-google i {
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <main>
+        <div class="container login-container z-depth-1">
+            <div class="center-align">
+                <h5 class="brand-logo">ARCA Grupo Carranza</h5>
+                <p>Inicie sesión con su cuenta de Google</p>
+            </div>
+
+            <!-- Botón de inicio de sesión con Google -->
+            <div class="btn-google waves-effect waves-light" id="google-signin">
+                <i class="material-icons">account_circle</i>
+                Iniciar sesión con Google
+            </div>
+        </div>
+    </main>
+
+    <!-- Importar Materialize JS y jQuery -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- Script de autenticación -->
+    <script>
+        document.getElementById('google-signin').onclick = function() {
+            // Redirigir al backend para autenticación de Google
+            window.location.href = '/auth/google';
+        };
+    </script>
+</body>
+</html>

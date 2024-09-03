@@ -1,49 +1,21 @@
+require('dotenv').config();
 const express = require('express');
-const path = require('path');
-const bodyParser = require('body-parser');
-const Datastore = require('nedb');
+const session = require('express-session');
+const passport = require('passport');
+require('./config/googleAuth');
 
-// Crear una instancia de la aplicación Express
 const app = express();
 
-// Configurar NeDB (Base de Datos en Memoria)
-const db = new Datastore({ filename: 'newsletter.db', autoload: true });
+// Configurar sesiones
+app.use(session({ secret: 'secret', resave: false, saveUninitialized: true }));
+app.use(passport.initialize());
+app.use(passport.session());
 
-// Configuraciones generales
-app.use(bodyParser.urlencoded({ extended: true }));
-app.use(express.static(path.join(__dirname, 'public')));
-app.set('views', path.join(__dirname, 'src/views'));
-app.set('view engine', 'ejs');
+// Rutas
+app.use('/', require('./src/routes/index'));
 
-// Ruta para la página principal
-app.get('/', (req, res) => {
-    db.find({}, (err, sections) => {
-        if (err) {
-            console.log('Error al recuperar secciones:', err);
-            res.status(500).send('Error interno del servidor');
-        } else {
-            res.render('public/index', { title: 'Inicio', sections });
-        }
-    });
-});
-
-// Ruta para añadir un artículo (solo como ejemplo)
-app.post('/add-article', (req, res) => {
-    const newArticle = {
-        title: req.body.title,
-        content: req.body.content,
-        images: req.body.images ? req.body.images.split(',') : []
-    };
-
-    db.insert(newArticle, (err, newDoc) => {
-        if (err) {
-            console.log('Error al insertar artículo:', err);
-            res.status(500).send('Error interno del servidor');
-        } else {
-            res.redirect('/');
-        }
-    });
-});
+// Configurar la carpeta 'public' como directorio estático
+app.use(express.static('public'));
 
 // Iniciar el servidor
 const PORT = process.env.PORT || 3000;

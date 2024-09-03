@@ -1,62 +1,29 @@
 body {
-    font-family: Arial, sans-serif;
-    margin: 0;
-    padding: 0;
-    background-color: #f4f4f4;
-}
-
-header {
-    background-color: #333;
-    color: #fff;
-    padding: 10px 0;
-    text-align: center;
-}
-
-header nav ul {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-}
-
-header nav ul li {
-    display: inline;
-    margin: 0 10px;
-}
-
-header nav ul li a {
-    color: #fff;
-    text-decoration: none;
-}
-
-.content {
-    padding: 20px;
-}
-
-.sections {
     display: flex;
-    flex-wrap: wrap;
+    min-height: 100vh;
+    flex-direction: column;
+    background-color: #F5F5F5; /* Fondo claro */
 }
-
-.card {
-    background-color: #fff;
-    border: 1px solid #ddd;
-    margin: 10px;
+main {
+    flex: 1 0 auto;
     padding: 20px;
-    width: calc(33.333% - 40px);
-    box-sizing: border-box;
-    text-align: center;
 }
-
-.card h2 {
-    margin-top: 0;
+.navbar {
+    background-color: #37424A;
 }
-
-footer {
-    background-color: #333;
-    color: #fff;
-    text-align: center;
-    padding: 10px 0;
-    position: absolute;
-    bottom: 0;
-    width: 100%;
+.navbar .brand-logo img {
+    height: 50px;
+    margin-left: 20px;
+    vertical-align: middle;
+}
+.dashboard-card {
+    margin-top: 20px;
+}
+.card-content i {
+    font-size: 4rem;
+    margin-bottom: 15px;
+    color: #E37222; /* Color corporativo */
+}
+.card-action .btn {
+    background-color: #E37222; /* Botones con color corporativo */
 }
