@@ -52,10 +52,16 @@ exports.createSubsection = async (req, res) => {
     }
 };
 
-// Listar todas las secciones y subsecciones
+// Función para listar secciones, subsecciones y sus artículos
 exports.listSections = async (req, res) => {
     try {
-        const sections = await Section.find();
+        const sections = await Section.find()
+            .populate('articles') // Popula los artículos de la sección
+            .populate({
+                path: 'subsections.articles', // Popula los artículos de las subsecciones
+                model: 'Article'  // Asegúrate de que el modelo es el correcto
+            });
+        
         res.status(200).json(sections);
     } catch (error) {
         console.error('Error al listar las secciones:', error);

@@ -1,4 +1,4 @@
-// Función para cargar secciones y subsecciones
+// Función para cargar secciones, subsecciones y artículos
 function loadSections() {
     $.ajax({
         url: '/api/sections',
@@ -17,9 +17,14 @@ function loadSections() {
                             <a href="#!" class="secondary-content" onclick="deleteSection('${section._id}')">
                                 <i class="material-icons">delete</i>
                             </a>
+                            <!-- Botón para añadir artículo a la sección -->
+                            <a href="#!" class="secondary-content" onclick="redirectToCreateArticle('${section._id}', null, '${section.title}')">
+                                <i class="material-icons">note_add</i> <!-- Icono para añadir artículo -->
+                            </a>
                         </div>
                         <div class="collapsible-body">
                             <ul>
+                                <!-- Iterar sobre subsecciones -->
                                 ${section.subsections.map(subsection => `
                                     <hr>
                                     <li>
@@ -31,8 +36,44 @@ function loadSections() {
                                         <a href="#!" class="secondary-content" onclick="deleteSubsection('${section._id}', '${subsection._id}')" style="vertical-align: middle;">
                                             <i class="material-icons" style="margin-right: 1rem;">delete</i>
                                         </a>
+                                        <!-- Botón para añadir artículo a la subsección -->
+                                         <a href="#!" class="secondary-content" onclick="redirectToCreateArticle('${section._id}', '${subsection._id}', '${section.title}', '${subsection.title}')" style="vertical-align: middle;">
+                                            <i class="material-icons" style="margin-right: 1rem">note_add</i> <!-- Icono para añadir artículo -->
+                                        </a>
+                                        <!-- Artículos de la subsección -->
+                                        <ul style="margin-top: 10px;">
+                                            ${subsection.articles ? subsection.articles.map(article => `
+                                                <li>
+                                                    <i class="material-icons" style="vertical-align: middle;margin-right: 1rem;">description</i>
+                                                    <span>${article.title}</span>
+                                                    <a href="#!" class="secondary-content" onclick="editArticle('${article._id}')" style="vertical-align: middle;">
+                                                        <i class="material-icons" style="margin-right: 1rem;">edit</i>
+                                                    </a>
+                                                    <a href="#!" class="secondary-content" onclick="deleteArticle('${article._id}')" style="vertical-align: middle;">
+                                                        <i class="material-icons" style="margin-right: 1rem;">delete</i>
+                                                    </a>
+                                                </li>
+                                            `).join('') : '<li>No hay artículos en esta subsección.</li>'}
+                                        </ul>
                                     </li>                                    
                                 `).join('')}
+                                
+                                <!-- Artículos de la sección (que no están en subsecciones) -->
+                                <hr>
+                                ${section.articles ? section.articles.map(article => `
+                                    <li>
+                                        <i class="material-icons" style="vertical-align: middle;margin-right: 1rem;">description</i>
+                                        <span>${article.title}</span>
+                                        <a href="#!" class="secondary-content" onclick="editArticle('${article._id}')" style="vertical-align: middle;">
+                                            <i class="material-icons" style="margin-right: 1rem;">edit</i>
+                                        </a>
+                                        <a href="#!" class="secondary-content" onclick="deleteArticle('${article._id}')" style="vertical-align: middle;">
+                                            <i class="material-icons" style="margin-right: 1rem;">delete</i>
+                                        </a>
+                                    </li>
+                                `).join('') : '<li>No hay artículos en esta sección.</li>'}
+                                
+                                <!-- Botón para añadir subsección -->
                                 <li style="border-top: solid 1px darkgray;margin-top: 5px;padding:10px;">
                                     <a href="#!" class="secondary-content" onclick="openAddSubsectionModal('${section._id}')" style="border-top: darkgray;display: flex;align-items: center;float: left;">
                                         <i class="material-icons" style="margin-right: 5px">add_circle</i> Añadir Subsección
@@ -232,6 +273,56 @@ function deleteSubsection(sectionId, subsectionId) {
             },
             error: function() {
                 M.toast({html: 'Error al eliminar la subsección.'});
+            }
+        });
+    }
+}
+
+// Función para redirigir a la página de creación de artículo
+function redirectToCreateArticle(sectionId, subsectionId, sectionName, subsectionName = '') {
+    // Almacenar los IDs y nombres en localStorage
+    localStorage.setItem('sectionId', sectionId);
+    localStorage.setItem('sectionName', sectionName);
+
+    if (subsectionId) {
+        localStorage.setItem('subsectionId', subsectionId);
+        localStorage.setItem('subsectionName', subsectionName);
+    } else {
+        localStorage.removeItem('subsectionId');
+        localStorage.removeItem('subsectionName');
+    }
+
+    // Redirigir al usuario a la página de creación de artículos
+    window.location.href = '/admin/create-article';
+}
+
+// Función para redirigir a la página de edición de un artículo
+function editArticle(articleId) {
+    // Almacenar el ID del artículo en localStorage para usarlo en la página de edición
+    localStorage.setItem('articleId', articleId);
+
+    // Redirigir al usuario a la página de edición de artículo
+    window.location.href = '/admin/edit-article';
+}
+
+// Función para eliminar un artículo
+function deleteArticle(articleId) {
+    // Mostrar una ventana de confirmación
+    const confirmDelete = confirm('¿Estás seguro de que deseas eliminar este artículo? Esta acción no se puede deshacer.');
+    
+    if (confirmDelete) {
+        // Si el usuario confirma, hacer una solicitud DELETE a la API
+        $.ajax({
+            url: `/api/articles/${articleId}`, // API para eliminar el artículo
+            method: 'DELETE',
+            success: function() {
+                M.toast({ html: 'Artículo eliminado correctamente' });
+                // Recargar las secciones para actualizar la lista de artículos
+                loadSections();
+            },
+            error: function(err) {
+                console.error('Error al eliminar el artículo:', err);
+                M.toast({ html: 'Error al eliminar el artículo' });
             }
         });
     }

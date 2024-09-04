@@ -25,23 +25,11 @@
                     <div class="card dashboard-card">
                         <div class="card-content center-align">
                             <i class="material-icons">folder</i>
-                            <span class="card-title">Secciones</span>
-                            <p>Gestiona las secciones y subsecciones.</p>
+                            <span class="card-title">Secciones y artículos</span>
+                            <p>Gestiona las secciones, subsecciones y artículos.</p>
                         </div>
                         <div class="card-action center-align">
                             <a href="/admin/sections" class="btn waves-effect waves-light">Administrar</a>
-                        </div>
-                    </div>
-                </div>
-                <div class="col s12 m4">
-                    <div class="card dashboard-card">
-                        <div class="card-content center-align">
-                            <i class="material-icons">article</i>
-                            <span class="card-title">Artículos</span>
-                            <p>Gestiona los artículos publicados.</p>
-                        </div>
-                        <div class="card-action center-align">
-                            <a href="/admin/articles" class="btn waves-effect waves-light">Administrar</a>
                         </div>
                     </div>
                 </div>
@@ -65,14 +53,10 @@
     <div id="footer"></div>
 
     <!-- Importar Materialize JS y jQuery -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
     <!-- Script para cargar header y footer -->
-    <script>
-        $(document).ready(function(){
-            $('#header').load('/partials/header.html');
-            $('#footer').load('/partials/footer.html');
-        });
-    </script>
+    <script src="/js/common.js"></script>
+    <script src="/js/sections.js"></script>
 </body>
 </html>

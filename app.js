@@ -1,6 +1,7 @@
 require('dotenv').config();
 const express = require('express');
 const session = require('express-session');
+const bodyParser = require('body-parser');
 const passport = require('passport');
 require('./config/googleAuth');
 const connectDB = require('./config/db');
@@ -9,6 +10,10 @@ const connectDB = require('./config/db');
 connectDB();
 
 const app = express();
+
+// Aumentar el límite de tamaño del body-parser
+app.use(bodyParser.json({ limit: '10mb' })); // Ajusta el límite según tus necesidades
+app.use(bodyParser.urlencoded({ limit: '10mb', extended: true })); // Para datos en formato x-www-form-urlencoded
 
 // Middleware para manejar datos JSON y urlencoded
 app.use(express.json());

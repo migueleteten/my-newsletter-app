@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crear Artículo</title>
+    <!-- Importar Materialize CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css" rel="stylesheet">
+    <!-- Importar Iconos de Google -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <!-- Estilos personalizados -->
+    <link href="/css/styles.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Header -->
+    <div id="header-container"></div>
+
+    <div class="container">
+        <h4>Crear Artículo</h4>
+
+        <!-- Información de la sección y subsección -->
+        <div id="section-info" class="card-panel teal lighten-4">
+            <span id="section-name" class="teal-text"></span>
+            <span id="subsection-name" class="teal-text"></span>
+        </div>
+
+        <!-- Formulario para crear artículo -->
+        <form id="article-form">
+            <div class="input-field">
+                <input id="article-title" type="text" class="validate" required>
+                <label for="article-title">Título del Artículo</label>
+            </div>
+
+            <!-- Bloques de contenido -->
+            <div id="content-blocks">
+                <!-- Aquí se añadirán dinámicamente los bloques de contenido -->
+            </div>
+
+            <!-- Botón para añadir bloques de contenido -->
+            <div class="row">
+                <div class="col s12">
+                    <a href="#!" class="btn-floating btn-large waves-effect waves-light red" onclick="addContentBlock()">
+                        <i class="material-icons">add</i>
+                    </a>
+                    <span>Añadir bloque de contenido</span>
+                </div>
+            </div>
+
+            <!-- Etiquetas -->
+            <div class="input-field">
+                <input id="article-tags" type="text" class="validate">
+                <label for="article-tags">Etiquetas (separadas por comas)</label>
+            </div>
+
+            <!-- Botones para guardar o cancelar -->
+            <div class="row">
+                <div class="col s6">
+                    <button type="submit" class="btn">Guardar Artículo</button>
+                </div>
+                <div class="col s6">
+                    <a href="/admin/sections" class="btn grey">Cancelar</a>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- Footer -->
+    <div id="footer-container"></div>
+
+    <!-- Importar Materialize JS y jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+    <!-- Script para cargar header y footer -->
+    <script src="/js/common.js"></script>
+    <script src="/js/create-article.js"></script>
+</body>
+</html>

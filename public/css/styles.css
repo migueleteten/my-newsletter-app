@@ -69,3 +69,50 @@ main {
 .modal-footer {
     height: auto !important;
 }
+
+/* Estilos personalizados para la página de creación de artículos */
+#content-blocks {
+    margin-bottom: 20px;
+}
+
+#content-blocks .content-block {
+    margin-bottom: 15px;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+#content-blocks .content-block .remove-block {
+    float: none;
+    cursor: pointer;
+}
+
+#content-blocks .content-block .remove-block i {
+    vertical-align: middle;
+}
+
+.btn-floating {
+    margin-right: 10px;
+}
+
+#section-info {
+    display: grid;
+}
+
+#image-input {
+    margin-bottom: 0;
+}
+
+.image-preview {
+    display: flex;
+    justify-content: space-around;
+}
+
+/* Estilos para la vista previa de la imagen */
+.image-preview img {
+    max-width: 100%; /* La imagen ocupa el 100% del ancho disponible */
+    max-height: 300px; /* Alto máximo de la imagen */
+    object-fit: contain; /* Mantener la proporción de la imagen */
+    display: block;
+    margin: 10px 0; /* Espacio alrededor de la imagen */
+}
