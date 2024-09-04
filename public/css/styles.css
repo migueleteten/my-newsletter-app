@@ -3,6 +3,7 @@ body {
     min-height: 100vh;
     flex-direction: column;
     background-color: #F5F5F5; /* Fondo claro */
+    padding: 0;
 }
 main {
     flex: 1 0 auto;
@@ -63,4 +64,8 @@ main {
 .color-circle:hover,
 .color-circle.selected {
     border: 2px solid #000; /* Resaltar el círculo seleccionado */
+}
+
+.modal-footer {
+    height: auto !important;
 }

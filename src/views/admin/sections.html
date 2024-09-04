@@ -24,7 +24,7 @@
             <!-- Botón para añadir una nueva sección -->
             <div class="row">
                 <div class="col s12">
-                    <a class="btn waves-effect waves-light modal-trigger" href="#modal-add-section" style="background-color: #E37222;">
+                    <a class="btn waves-effect waves-light" id="add-new-section-btn" style="background-color: #E37222;">
                         Añadir Nueva Sección
                     </a>
                 </div>
@@ -32,28 +32,6 @@
 
             <!-- Lista de secciones y subsecciones -->
             <ul class="collapsible">
-                <!-- Ejemplo de sección y subsección -->
-                <li>
-                    <div class="collapsible-header">
-                        <i class="material-icons">folder</i>
-                        <span>Nombre de la Sección</span>
-                        <a href="#!" class="secondary-content">
-                            <i class="material-icons">edit</i>
-                        </a>
-                    </div>
-                    <div class="collapsible-body">
-                        <ul>
-                            <li>
-                                <i class="material-icons">subdirectory_arrow_right</i>
-                                <span>Subsección 1</span>
-                                <a href="#!" class="secondary-content">
-                                    <i class="material-icons">edit</i>
-                                </a>
-                            </li>
-                        </ul>
-                    </div>
-                </li>
-                <!-- Fin del ejemplo -->
             </ul>
         </div>
     </main>
@@ -90,16 +68,16 @@
                         <div class="color-circle" style="background-color: #a29ddc;" data-color="#a29ddc"></div>
                         <div class="color-circle" style="background-color: #122533;" data-color="#122533"></div>
                     </div>
-                </div>
+                </div>                
             </form>
         </div>
         <div class="modal-footer">
-            <a href="#!" class="modal-close btn waves-effect waves-green">Cancelar</a>
+            <button href="#!" class="modal-close btn waves-effect waves-green">Cancelar</button>
             <button type="submit" class="btn waves-effect waves-light" form="add-section-form">Guardar</button>
-        </div>        
+        </div>
     </div>
 
-    <!-- Modal para añadir una nueva subsección -->
+    <!-- Modal para añadir o editar subsección -->
     <div id="modal-add-subsection" class="modal">
         <div class="modal-content">
             <h5>Nueva Subsección</h5>
@@ -111,7 +89,7 @@
             </form>
         </div>
         <div class="modal-footer">
-            <a href="#!" class="modal-close btn waves-effect waves-green">Cancelar</a>
+            <button href="#!" class="modal-close btn waves-effect waves-green">Cancelar</button>
             <button type="submit" class="btn waves-effect waves-light" form="add-subsection-form">Guardar</button>
         </div>
     </div>
@@ -119,11 +97,11 @@
     <!-- Incluir el footer -->
     <div id="footer"></div>
 
-    <!-- Importar jQuery (primero) y Materialize JS -->
+    <!-- Importar Materialize JS y jQuery -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
     <!-- Script para cargar header y footer -->
-    <script src="/js/sections.js"></script>
     <script src="/js/common.js"></script>
+    <script src="/js/sections.js"></script>
 </body>
 </html>

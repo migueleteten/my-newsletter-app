@@ -8,8 +8,8 @@ function loadSections() {
             data.forEach(section => {
                 const sectionHtml = `
                     <li>
-                        <div class="collapsible-header">
-                            <i class="material-icons" style="color:${section.color}">folder</i>
+                        <div class="collapsible-header" style="display: list-item;">
+                            <i class="material-icons" style="color:${section.color};vertical-align: middle;">folder</i>
                             <span>${section.title}</span>
                             <a href="#!" class="secondary-content" onclick="editSection('${section._id}')">
                                 <i class="material-icons">edit</i>
@@ -21,20 +21,21 @@ function loadSections() {
                         <div class="collapsible-body">
                             <ul>
                                 ${section.subsections.map(subsection => `
+                                    <hr>
                                     <li>
-                                        <i class="material-icons">subdirectory_arrow_right</i>
+                                        <i class="material-icons" style="vertical-align: middle;margin-right: 1rem;">subdirectory_arrow_right</i>
                                         <span>${subsection.title}</span>
-                                        <a href="#!" class="secondary-content" onclick="editSubsection('${section._id}', '${subsection._id}')">
-                                            <i class="material-icons">edit</i>
+                                        <a href="#!" class="secondary-content" onclick="editSubsection('${section._id}', '${subsection._id}')" style="vertical-align: middle;">
+                                            <i class="material-icons" style="margin-right: 1rem;">edit</i>
                                         </a>
-                                        <a href="#!" class="secondary-content" onclick="deleteSubsection('${section._id}', '${subsection._id}')">
-                                            <i class="material-icons">delete</i>
+                                        <a href="#!" class="secondary-content" onclick="deleteSubsection('${section._id}', '${subsection._id}')" style="vertical-align: middle;">
+                                            <i class="material-icons" style="margin-right: 1rem;">delete</i>
                                         </a>
                                     </li>                                    
                                 `).join('')}
-                                <li>
-                                    <a href="#!" class="secondary-content" onclick="openAddSubsectionModal('${section._id}')">
-                                        <i class="material-icons">add_circle</i> Añadir Subsección
+                                <li style="border-top: solid 1px darkgray;margin-top: 5px;padding:10px;">
+                                    <a href="#!" class="secondary-content" onclick="openAddSubsectionModal('${section._id}')" style="border-top: darkgray;display: flex;align-items: center;float: left;">
+                                        <i class="material-icons" style="margin-right: 5px">add_circle</i> Añadir Subsección
                                     </a>
                                 </li>
                             </ul>
@@ -59,13 +60,18 @@ function editSection(sectionId) {
         method: 'GET',
         success: function(section) {
             // Llenar el modal de edición con los detalles de la sección
+            // Cambiar el título del modal
+            $('#modal-add-section h5').text('Editar Sección');
             $('#section-title').val(section.title);
-            $('#section-color').val(section.color);
-            $('#section-color').next().find('.color-circle').each(function() {
+            M.updateTextFields(); // Esto asegura que el label se posicione correctamente
+            // Eliminar la clase 'selected' de todos los círculos antes de añadirla al correcto
+            $('.color-circle').removeClass('selected');
+            
+            // Buscar y seleccionar el círculo correspondiente al color de la sección
+            $('.color-circle').each(function() {
                 if ($(this).data('color') === section.color) {
-                    $(this).addClass('selected');
-                } else {
-                    $(this).removeClass('selected');
+                    $(this).addClass('selected'); // Añadir clase 'selected'
+                    $('#section-color').val(section.color); // Establecer el valor en el input oculto
                 }
             });
 
@@ -118,12 +124,117 @@ function deleteSection(sectionId) {
     }
 }
 
+let currentSectionId; // Variable para almacenar el ID de la sección actual
+let currentSubsectionId; // Variable para almacenar el ID de la subsección actual
+
 // Función para abrir el modal de añadir subsección
 function openAddSubsectionModal(sectionId) {
-    currentSectionId = sectionId; // Almacenar el ID de la sección en una variable global
-    $('#subsection-title').val(''); // Limpiar el campo de título
-    M.updateTextFields(); // Actualizar los campos de texto (Materialize)
-    $('#modal-add-subsection').modal('open'); // Abrir el modal
+    currentSectionId = sectionId; // Almacenar el ID de la sección
+    currentSubsectionId = null; // No hay subsección en este caso, es un nuevo registro
+
+    // Cambiar el título del modal a "Nueva Subsección"
+    $('#modal-add-subsection .modal-content h5').text('Nueva Subsección');
+    // Limpiar el campo de título
+    $('#subsection-title').val('');
+    M.updateTextFields(); // Asegurarse de que el label no se superponga
+
+    // Desvincular cualquier evento previo de submit y vincular uno nuevo
+    $('#add-subsection-form').off('submit').on('submit', function(event) {
+        event.preventDefault(); // Evitar que el formulario se envíe de manera tradicional
+
+        const title = $('#subsection-title').val();
+        if (!title) {
+            M.toast({html: 'El título de la subsección es obligatorio.'});
+            return;
+        }
+
+        // Realizar la solicitud POST para añadir la subsección
+        $.ajax({
+            url: `/api/sections/${currentSectionId}/subsections`,
+            method: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({ title }), // Enviar el título como JSON
+            success: function() {
+                M.toast({html: 'Subsección creada correctamente.'});
+                loadSections(); // Volver a cargar las secciones para mostrar la nueva subsección
+                $('#modal-add-subsection').modal('close'); // Cerrar el modal
+            },
+            error: function() {
+                M.toast({html: 'Error al crear la subsección.'});
+            }
+        });
+    });
+
+    // Abrir el modal
+    $('#modal-add-subsection').modal('open');
+}
+
+
+// Función para abrir el modal de editar subsección
+function editSubsection(sectionId, subsectionId) {
+    currentSectionId = sectionId; // Almacenar el ID de la sección
+    currentSubsectionId = subsectionId; // Almacenar el ID de la subsección
+
+    // Realizar una petición GET para obtener los detalles de la subsección
+    $.ajax({
+        url: `/api/sections/${sectionId}/subsections/${subsectionId}`,
+        method: 'GET',
+        success: function(subsection) {
+            // Cambiar el título del modal a "Editar Subsección"
+            $('#modal-add-subsection .modal-content h5').text('Editar Subsección');
+            // Poner el título de la subsección en el input
+            $('#subsection-title').val(subsection.title);
+            M.updateTextFields(); // Asegurarse de que el label no se superponga
+            // Abrir el modal de edición
+            $('#modal-add-subsection').modal('open');
+        },
+        error: function() {
+            M.toast({html: 'Error al obtener los detalles de la subsección.'});
+        }
+    });
+
+    // Manejar el envío del formulario de subsección como edición
+    $('#add-subsection-form').off('submit').on('submit', function(event) {
+        event.preventDefault();
+
+        const title = $('#subsection-title').val();
+        if (!title) {
+            M.toast({html: 'El título de la subsección es obligatorio.'});
+            return;
+        }
+
+        $.ajax({
+            url: `/api/sections/${currentSectionId}/subsections/${currentSubsectionId}`,
+            method: 'PUT',
+            contentType: 'application/json',
+            data: JSON.stringify({ title }),
+            success: function() {
+                M.toast({html: 'Subsección editada correctamente.'});
+                loadSections(); // Volver a cargar las secciones
+                $('#modal-add-subsection').modal('close'); // Cerrar el modal
+            },
+            error: function() {
+                M.toast({html: 'Error al editar la subsección.'});
+            }
+        });
+    });
+}
+
+// Función para eliminar una subsección
+function deleteSubsection(sectionId, subsectionId) {
+    if (confirm('¿Estás seguro de que deseas eliminar esta subsección?')) {
+        $.ajax({
+            url: `/api/sections/${sectionId}/subsections/${subsectionId}`,
+            method: 'DELETE',
+            success: function() {
+                M.toast({html: 'Subsección eliminada correctamente.'});
+                loadSections(); // Volver a cargar las secciones
+            },
+            error: function() {
+                M.toast({html: 'Error al eliminar la subsección.'});
+            }
+        });
+    }
 }
 
 $(document).ready(function(){
@@ -140,11 +251,24 @@ $(document).ready(function(){
         $('#section-color').val(selectedColor);
     });
 
+    $('.modal').modal(); // Inicializar los modales
     // Cargar secciones y subsecciones
     loadSections();
 
-    // Mostrar el modal al hacer clic en el botón "Añadir Nueva Sección"
-    $('#modal-add-section').modal();
+    // Abrir el modal al hacer clic en el botón "Añadir Nueva Sección"
+    $('#add-new-section-btn').on('click', function() {
+        // Limpiar el formulario antes de abrir el modal (si es necesario)
+        $('#section-title').val('');
+        $('.color-circle').removeClass('selected');
+        $('#section-color').val('');
+        M.updateTextFields(); // Asegurarse de que los labels se actualicen
+
+        // Cambiar el título del modal para añadir una nueva sección
+        $('#modal-add-section h5').text('Nueva Sección');
+        
+        // Abrir el modal
+        $('#modal-add-section').modal('open');
+    });
 
     // Función para añadir una nueva sección
     $('#add-section-form').submit(function(event) {
@@ -164,32 +288,6 @@ $(document).ready(function(){
             },
             error: function() {
                 M.toast({html: 'Error al crear la sección.'});
-            }
-        });
-    });
-
-    // Manejar el envío del formulario de subsección
-    $('#add-subsection-form').submit(function(event) {
-        event.preventDefault();
-
-        const title = $('#subsection-title').val();
-        if (!title) {
-            M.toast({html: 'El título de la subsección es obligatorio.'});
-            return;
-        }
-
-        $.ajax({
-            url: `/api/sections/${currentSectionId}/subsections`,
-            method: 'POST',
-            contentType: 'application/json',
-            data: JSON.stringify({ title }),
-            success: function() {
-                M.toast({html: 'Subsección creada correctamente.'});
-                loadSections(); // Recargar las secciones para mostrar la nueva subsección
-                $('#modal-add-subsection').modal('close'); // Cerrar el modal
-            },
-            error: function() {
-                M.toast({html: 'Error al crear la subsección.'});
             }
         });
     });

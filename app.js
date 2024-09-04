@@ -21,6 +21,13 @@ app.use(passport.session());
 
 // Rutas
 app.use('/', require('./src/routes/index'));
+app.get('/api/user-role', (req, res) => {
+    if (req.isAuthenticated()) {
+        res.json({ isAdmin: req.user.isAdmin });
+    } else {
+        res.status(401).json({ message: 'No autenticado' });
+    }
+});
 
 // Configurar la carpeta 'public' como directorio estático
 app.use(express.static('public'));

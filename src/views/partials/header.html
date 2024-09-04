@@ -1,10 +1,26 @@
 <nav class="navbar" style="background-color: #37424A;">
     <div class="nav-wrapper">
-        <a href="#" class="brand-logo">
+        <a href="#" id="logo-link" class="brand-logo">
             <img src="/images/logo-arca-horiz.png" alt="ARCA Grupo Carranza" style="height: 50px; margin-left: 20px; vertical-align: middle;">
         </a>
         <ul id="nav-mobile" class="right hide-on-med-and-down">
-            <li><a href="#" style="color: white;">Cerrar Sesión</a></li>
+            <li><a href="/auth/logout" style="color: white;">Cerrar Sesión</a></li>
         </ul>
     </div>
 </nav>
+
+<script>
+// Hacer una solicitud a la API para obtener el rol del usuario
+fetch('/api/user-role')
+    .then(response => response.json())
+    .then(data => {
+        // Si la solicitud es exitosa, ajustar el enlace del logo
+        if (data.isAdmin) {
+            document.getElementById('logo-link').href = '/admin/dashboard';
+        } else {
+            document.getElementById('logo-link').href = '/user/index';
+        }
+    })
+    .catch(err => {
+        console.error('Error al obtener el rol del usuario:', err);
+    });

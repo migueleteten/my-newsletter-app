@@ -70,5 +70,9 @@ router.post('/api/sections', sectionController.createSection);
 router.get('/api/sections/:id', sectionController.getSectionById);
 router.put('/api/sections/:id', sectionController.updateSection);
 router.delete('/api/sections/:id', sectionController.deleteSection);
+// Rutas para gestionar subsecciones
+router.get('/api/sections/:sectionId/subsections/:subsectionId', sectionController.getSubsection);
+router.put('/api/sections/:sectionId/subsections/:subsectionId', sectionController.editSubsection);
+router.delete('/api/sections/:sectionId/subsections/:subsectionId', sectionController.deleteSubsection);
 
 module.exports = router;
