@@ -1,14 +1,73 @@
+/* Asegurar que el contenido del body se expanda adecuadamente */
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden; /* Evitar scroll lateral */
+}
+
 body {
     display: flex;
-    min-height: 100vh;
     flex-direction: column;
+    min-height: 100vh;
     background-color: #F5F5F5; /* Fondo claro */
-    padding: 0;
 }
+
+/* Asegurar que el main ocupe el espacio necesario */
 main {
     flex: 1 0 auto;
     padding: 20px;
+    overflow-y: auto; /* Habilitar scroll vertical si es necesario */
+    width: 100%;
+    box-sizing: border-box; /* Asegurar que el padding se incluya dentro del tamaño del contenedor */
 }
+
+/* Ajustar el footer para que no interfiera con el contenido */
+#footer {
+    position: relative;
+    width: 100%;
+    background-color: #37424A;
+    color: white;
+    text-align: center;
+    padding: 10px 0;
+}
+
+/* Evitar que el footer se superponga con el contenido en pantallas pequeñas */
+@media only screen and (max-width: 768px) {
+    body {
+        flex-direction: column;
+    }
+
+    main {
+        flex-grow: 1; /* Asegurar que main crezca adecuadamente */
+        padding: 0;
+    }
+
+    body .container {
+        padding-top: 10px;
+    }
+
+    #footer {
+        position: relative; /* El footer no será fijo en móviles */
+        bottom: 0;
+        width: 100%;
+    }
+
+    .collapsible i {
+        margin-right: 0.1rem;
+    }
+
+    .collapsible-body i {
+        margin-right: 0.1rem !important;
+    }
+
+    .collapsible-body {
+        padding-left: 0.5rem;
+        padding-right: 0.5rem;
+    }
+}
+
+
 .navbar {
     background-color: #37424A;
 }
