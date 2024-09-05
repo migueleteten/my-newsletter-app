@@ -52,7 +52,6 @@ Thumbs.db
 *.pfx
 
 # Ignore credentials and configurations
-config/
 google-services.json
 firebase.json
 
