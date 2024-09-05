@@ -32,6 +32,10 @@ main {
     padding: 10px 0;
 }
 
+#section-info {
+    margin-bottom: 30px;
+}
+
 /* Evitar que el footer se superponga con el contenido en pantallas pequeñas */
 @media only screen and (max-width: 768px) {
     body {
@@ -59,6 +63,11 @@ main {
 
     .collapsible-body i {
         margin-right: 0.1rem !important;
+    }
+
+    .collapsible-body span {
+        display: inline-flex;
+        width: 65%;
     }
 
     .collapsible-body {

@@ -46,6 +46,9 @@ function loadSections() {
                                                 <li>
                                                     <i class="material-icons" style="vertical-align: middle;margin-right: 1rem;">description</i>
                                                     <span>${article.title}</span>
+                                                    <a href="#!" class="secondary-content" onclick="toggleStarArticle('${article._id}')" style="vertical-align: middle;">
+                                                        <i class="material-icons">${article.starred ? 'star' : 'star_border'}</i>
+                                                    </a>
                                                     <a href="#!" class="secondary-content" onclick="editArticle('${article._id}')" style="vertical-align: middle;">
                                                         <i class="material-icons" style="margin-right: 1rem;">edit</i>
                                                     </a>
@@ -64,6 +67,9 @@ function loadSections() {
                                     <li>
                                         <i class="material-icons" style="vertical-align: middle;margin-right: 1rem;">description</i>
                                         <span>${article.title}</span>
+                                        <a href="#!" class="secondary-content" onclick="toggleStarArticle('${article._id}')" style="vertical-align: middle;">
+                                            <i class="material-icons">${article.starred ? 'star' : 'star_border'}</i>
+                                        </a>
                                         <a href="#!" class="secondary-content" onclick="editArticle('${article._id}')" style="vertical-align: middle;">
                                             <i class="material-icons" style="margin-right: 1rem;">edit</i>
                                         </a>
@@ -302,7 +308,7 @@ function editArticle(articleId) {
     localStorage.setItem('articleId', articleId);
 
     // Redirigir al usuario a la página de edición de artículo
-    window.location.href = '/admin/edit-article';
+    window.location.href = `/admin/edit-article?articleId=${articleId}`;
 }
 
 // Función para eliminar un artículo
@@ -326,6 +332,21 @@ function deleteArticle(articleId) {
             }
         });
     }
+}
+
+function toggleStarArticle(articleId) {
+    $.ajax({
+        url: `/api/articles/${articleId}/highlight`,
+        method: 'PUT',
+        success: function(data) {
+            M.toast({ html: `Artículo ${data.starred ? 'destacado' : 'eliminado de destacados'}.` });
+            loadSections(); // Volver a cargar las secciones para reflejar los cambios
+        },
+        error: function(err) {
+            console.error('Error al destacar el artículo:', err);
+            M.toast({ html: 'Error al destacar el artículo.' });
+        }
+    });
 }
 
 $(document).ready(function(){

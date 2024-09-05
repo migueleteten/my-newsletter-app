@@ -27,7 +27,7 @@ router.get('/auth/google', passport.authenticate('google', {
 }));
 
 // Ruta para manejar el callback de Google
-router.get('/auth/google/callback',
+router.get('/auth/google/callback', 
     passport.authenticate('google', { failureRedirect: '/' }),
     (req, res) => {
         // Verificar si el usuario es administrador
@@ -68,6 +68,16 @@ router.get('/admin/create-article', ensureAdmin, (req, res) => {
     res.sendFile(path.join(__dirname, '../views/admin/create-article.html'));
 });
 
+// Ruta protegida para editar artículos (solo admin)
+router.get('/admin/edit-article', ensureAdmin, (req, res) => {
+    res.sendFile(path.join(__dirname, '../views/admin/edit-article.html'));
+});
+
+// Ruta protegida para publicar artículos (solo admin)
+router.get('/admin/publications', ensureAdmin, (req, res) => {
+    res.sendFile(path.join(__dirname, '../views/admin/publications.html'));
+});
+
 // Rutas para gestionar secciones (API)
 router.get('/api/sections', sectionController.listSections);
 router.post('/api/sections', ensureAdmin, sectionController.createSection);
@@ -81,13 +91,18 @@ router.get('/api/sections/:sectionId/subsections/:subsectionId', sectionControll
 router.put('/api/sections/:sectionId/subsections/:subsectionId', ensureAdmin, sectionController.editSubsection);
 router.delete('/api/sections/:sectionId/subsections/:subsectionId', ensureAdmin, sectionController.deleteSubsection);
 
+
+// Rutas para artículos pendientes y publicación
+router.get('/api/articles/pending', articleController.getPendingArticles);
+router.post('/api/articles/publish', ensureAdmin, articleController.publishArticles);  // Publicar artículos seleccionados
+
 // Rutas para gestionar artículos (API)
 router.get('/api/sections/:sectionId/articles', articleController.listArticlesBySection);  // Listar todos los artículos de una sección
 router.post('/api/sections/:sectionId/articles', ensureAdmin, articleController.createArticle);  // Crear artículo
 router.get('/api/articles/:articleId', articleController.getArticleById);  // Obtener detalles de un artículo
 router.put('/api/articles/:articleId', ensureAdmin, articleController.updateArticle);  // Editar artículo
 router.delete('/api/articles/:articleId', ensureAdmin, articleController.deleteArticle);  // Eliminar artículo
-router.post('/api/articles/:articleId/highlight', ensureAdmin, articleController.highlightArticle);  // Destacar artículo
+router.put('/api/articles/:articleId/highlight', ensureAdmin, articleController.highlightArticle);  // Destacar artículo
 router.post('/api/sections/:sectionId/articles/reorder', ensureAdmin, articleController.reorderArticles);  // Reordenar artículos
 
 module.exports = router;

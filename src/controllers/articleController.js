@@ -65,30 +65,39 @@ exports.listArticlesBySection = async (req, res) => {
 // Obtener los detalles de un artículo específico
 exports.getArticleById = async (req, res) => {
     try {
-        const { articleId } = req.params;
+        const articleId = req.params.articleId;  // No necesitas desestructurar aquí
         const article = await Article.findById(articleId);
+        
         if (!article) {
             return res.status(404).json({ error: 'Artículo no encontrado.' });
         }
-        res.status(200).json(article);
+        
+        res.status(200).json(article);  // Devuelve el artículo encontrado
     } catch (error) {
         console.error('Error al obtener el artículo:', error);
         res.status(500).json({ error: 'Error al obtener el artículo.' });
     }
 };
 
-// Editar un artículo existente
+// Actualizar un artículo existente
 exports.updateArticle = async (req, res) => {
     try {
-        const { articleId } = req.params;
         const { title, contentBlocks, tags } = req.body;
+        const { articleId } = req.params; // Esto debería funcionar
 
-        const article = await Article.findByIdAndUpdate(articleId, { title, contentBlocks, tags }, { new: true });
-        if (!article) {
+        // Validar que los datos requeridos están presentes
+        if (!title || !contentBlocks) {
+            return res.status(400).json({ error: 'El título y el contenido son obligatorios.' });
+        }
+
+        // Actualizar el artículo
+        const updatedArticle = await Article.findByIdAndUpdate(articleId, { title, contentBlocks, tags }, { new: true });
+
+        if (!updatedArticle) {
             return res.status(404).json({ error: 'Artículo no encontrado.' });
         }
 
-        res.status(200).json({ message: 'Artículo actualizado correctamente.', article });
+        res.status(200).json({ message: 'Artículo actualizado correctamente.', article: updatedArticle });
     } catch (error) {
         console.error('Error al actualizar el artículo:', error);
         res.status(500).json({ error: 'Error al actualizar el artículo.' });
@@ -116,14 +125,16 @@ exports.highlightArticle = async (req, res) => {
     try {
         const { articleId } = req.params;
         const article = await Article.findById(articleId);
+
         if (!article) {
             return res.status(404).json({ error: 'Artículo no encontrado.' });
         }
 
-        article.isHighlighted = !article.isHighlighted;
+        // Cambiar el estado de destacado
+        article.starred = !article.starred;
         await article.save();
 
-        res.status(200).json({ message: 'Estado de destacado actualizado.', isHighlighted: article.isHighlighted });
+        res.status(200).json({ message: 'Estado de destacado actualizado.', starred: article.starred });
     } catch (error) {
         console.error('Error al destacar el artículo:', error);
         res.status(500).json({ error: 'Error al destacar el artículo.' });
@@ -163,5 +174,58 @@ exports.searchArticles = async (req, res) => {
     } catch (error) {
         console.error('Error al buscar artículos:', error);
         res.status(500).json({ error: 'Error al buscar artículos.' });
+    }
+};
+
+// Publicar los artículos seleccionados
+exports.publishArticles = async (req, res) => {
+    try {
+        const { articleIds } = req.body; // Recibe un array de IDs de artículos
+
+        if (!articleIds || articleIds.length === 0) {
+            return res.status(400).json({ error: 'No se seleccionaron artículos para publicar.' });
+        }
+
+        // Actualizar el campo published de los artículos seleccionados
+        await Article.updateMany(
+            { _id: { $in: articleIds } },
+            { $set: { published: true } }
+        );
+
+        res.status(200).json({ message: 'Artículos publicados correctamente.' });
+    } catch (error) {
+        console.error('Error al publicar los artículos:', error);
+        res.status(500).json({ error: 'Error al publicar los artículos.' });
+    }
+};
+
+// Obtener artículos pendientes de publicación
+exports.getPendingArticles = async (req, res) => {
+    try {
+        // Buscar artículos que no estén publicados
+        const pendingArticles = await Article.find({ published: false });
+
+        if (!pendingArticles || pendingArticles.length === 0) {
+            return res.status(404).json({ error: 'No hay artículos pendientes.' });
+        }
+
+        // Crear un resumen para cada artículo basándonos en el primer bloque de texto
+        const articlesWithSummary = pendingArticles.map(article => {
+            // Buscar el primer bloque de contenido tipo texto
+            const firstTextBlock = article.contentBlocks.find(block => block.type === 'text');
+
+            // Crear el resumen a partir del primer bloque de texto, cortándolo a 150 caracteres
+            const summary = firstTextBlock ? firstTextBlock.content.substring(0, 150) + '...' : 'Sin contenido textual disponible';
+
+            return {
+                ...article.toObject(),  // Convertir el artículo a un objeto plano
+                summary  // Agregar el campo de resumen dinámico
+            };
+        });
+
+        res.status(200).json(articlesWithSummary);
+    } catch (error) {
+        console.error('Error al obtener los artículos pendientes:', error);
+        res.status(500).json({ error: 'Error al obtener los artículos pendientes.' });
     }
 };

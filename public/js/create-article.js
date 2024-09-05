@@ -19,86 +19,64 @@ $(document).ready(function() {
     // Manejar el formulario de creación de artículo
     $('#article-form').on('submit', function(event) {
         event.preventDefault();
-
+    
         const title = $('#article-title').val();
         const tags = $('#article-tags').val().split(',').map(tag => tag.trim());
         const sectionId = localStorage.getItem('sectionId');
         const subsectionId = localStorage.getItem('subsectionId');
-        const contentBlocks = [];
-
-        // Verificar que se ha seleccionado una sección
+        const contentBlocks = getContentBlocks();  // Llama a la función que obtendrá los bloques
+    
         if (!title || !sectionId) {
             M.toast({ html: 'Error: El título y la sección son obligatorios.' });
             return;
         }
-
-        // Función para manejar las imágenes con FileReader (promesas para control asincrónico)
-        function readFileAsBase64(file) {
-            return new Promise((resolve, reject) => {
-                const reader = new FileReader();
-                reader.onload = () => resolve(reader.result);
-                reader.onerror = reject;
-                reader.readAsDataURL(file); // Leer como base64
-            });
-        }
-
-        // Promesas para manejar los bloques de contenido asíncronos
-        const promises = [];
-
-        $('.content-block').each(function() {
-            const blockType = $(this).find('.block-type').val();
-
-            if (blockType === 'text') {
-                const textContent = $(this).find('textarea').val();
-                contentBlocks.push({
-                    type: 'text',
-                    content: textContent
-                });
-            } else if (blockType === 'image') {
-                const imageFile = $(this).find('input[type="file"]')[0].files[0];
-                
-                if (imageFile) {
-                    // Promesa para leer la imagen y añadirla al array de bloques
-                    const imagePromise = readFileAsBase64(imageFile).then(base64Image => {
-                        contentBlocks.push({
-                            type: 'image',
-                            content: base64Image // Imagen en base64
-                        });
-                    });
-                    promises.push(imagePromise); // Añadir la promesa para esperar
-                }
+    
+        // Realiza la solicitud AJAX para guardar el artículo
+        $.ajax({
+            url: `/api/sections/${sectionId}/articles`,
+            method: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({ title, contentBlocks, tags, sectionId, subsectionId }),
+            success: function() {
+                M.toast({ html: 'Artículo creado correctamente' });
+                window.location.href = '/admin/sections';  // Redirigir de nuevo a la página de secciones
+            },
+            error: function(err) {
+                console.error('Error al crear el artículo:', err);
+                M.toast({ html: 'Error al crear el artículo' });
             }
-        });
-
-        // Esperar a que todas las promesas de lectura de imágenes se resuelvan
-        Promise.all(promises).then(() => {
-            // Verificar que al menos hay un bloque de contenido
-            if (contentBlocks.length === 0) {
-                M.toast({ html: 'Error: Debes añadir al menos un bloque de contenido.' });
-                return;
-            }
-
-            // Hacer la solicitud para crear el artículo
-            $.ajax({
-                url: `/api/sections/${sectionId}/articles`,
-                method: 'POST',
-                contentType: 'application/json',
-                data: JSON.stringify({ title, contentBlocks, tags, sectionId, subsectionId }),
-                success: function() {
-                    M.toast({ html: 'Artículo creado correctamente' });
-                    window.location.href = '/admin/sections';  // Redirigir de nuevo a la página de secciones
-                },
-                error: function(err) {
-                    console.error('Error al crear el artículo:', err);
-                    M.toast({ html: 'Error al crear el artículo' });
-                }
-            });
-        }).catch(err => {
-            console.error('Error al procesar los archivos:', err);
-            M.toast({ html: 'Error al procesar las imágenes.' });
         });
     });
 });
+
+// Obtener los bloques de contenido al enviar el formulario
+function getContentBlocks() {
+    const contentBlocks = [];
+
+    $('.content-block').each(function() {
+        const blockId = $(this).attr('id').split('-')[2]; // Obtener el ID del bloque
+        const blockType = $(this).find('.block-type').val();
+
+        if (blockType === 'text') {
+            const quill = quillEditors[blockId];  // Recuperar la instancia de Quill
+            const richTextContent = quill.root.innerHTML;  // Obtener el contenido HTML generado por Quill
+            contentBlocks.push({
+                type: 'text',
+                content: richTextContent  // Guardar el contenido HTML enriquecido
+            });
+        } else if (blockType === 'image') {
+            const imageFile = $(this).find('input[type="file"]')[0].files[0];
+            if (imageFile) {
+                contentBlocks.push({
+                    type: 'image',
+                    content: imageFile  // Aquí deberías manejar la conversión a base64 si es necesario
+                });
+            }
+        }
+    });
+
+    return contentBlocks;
+}
 
 // Variable para mantener un contador de bloques
 let blockCount = 0;
@@ -135,6 +113,9 @@ function addContentBlock() {
     $('select').formSelect();
 }
 
+// Array para almacenar las instancias de Quill (editor enriquecido)
+let quillEditors = {};
+
 // Función para manejar el cambio de tipo de bloque (texto o imagen)
 function handleBlockTypeChange(blockId) {
     const selectedType = $(`#content-block-${blockId} .block-type`).val();
@@ -147,11 +128,26 @@ function handleBlockTypeChange(blockId) {
     if (selectedType === 'text') {
         contentContainer.append(`
             <div class="input-field">
-                <textarea id="block-text-${blockId}" class="materialize-textarea" placeholder="Escribe tu texto aquí..."></textarea>
-                <label for="block-text-${blockId}">Bloque de Texto</label>
+                <div id="quill-editor-${blockId}" class="quill-editor" style="height: 200px;"></div>
             </div>
         `);
-        M.updateTextFields(); // Asegurarse de que el label no se superponga
+
+        // Inicializar el editor Quill
+        const quill = new Quill(`#quill-editor-${blockId}`, {
+            theme: 'snow',
+            placeholder: 'Escribe tu texto aquí...',
+            modules: {
+                toolbar: [
+                    [{ 'header': [1, 2, false] }],
+                    ['bold', 'italic', 'underline'], // Negrita, cursiva, subrayado
+                    ['link', 'image'], // Enlaces e imágenes
+                    [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                ]
+            }
+        });
+
+        // Guardar la instancia de Quill en el array para referencia futura
+        quillEditors[blockId] = quill;
     } else if (selectedType === 'image') {
         contentContainer.append(`
             <div class="file-field input-field" id="image-input">

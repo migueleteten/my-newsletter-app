@@ -17,7 +17,11 @@ const ArticleSchema = new mongoose.Schema({
     tags: [String],
     contentBlocks: [ContentBlockSchema], // Los bloques de contenido
     sectionId: { type: mongoose.Schema.Types.ObjectId, ref: 'Section', required: true },
-    subsectionId: { type: mongoose.Schema.Types.ObjectId, ref: 'Subsection', required: false }
+    subsectionId: { type: mongoose.Schema.Types.ObjectId, ref: 'Subsection', required: false },
+    starred: { type: Boolean, default: false }, // Nuevo campo para destacar el artículo
+    published: { type: Boolean, default: false }, // Nuevo campo para manejar la publicación
+    createdAt: { type: Date, default: Date.now },
+    updatedAt: { type: Date, default: Date.now }
 });
 
 module.exports = mongoose.model('Article', ArticleSchema);
