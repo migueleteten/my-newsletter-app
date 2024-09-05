@@ -184,3 +184,7 @@ main {
     display: block;
     margin: 10px 0; /* Espacio alrededor de la imagen */
 }
+
+strong {
+    font-weight: bold;
+}

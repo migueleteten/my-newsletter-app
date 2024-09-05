@@ -19,67 +19,56 @@ $(document).ready(function() {
     // Manejar el formulario de creación de artículo
     $('#article-form').on('submit', function(event) {
         event.preventDefault();
-    
+
         const title = $('#article-title').val();
         const tags = $('#article-tags').val().split(',').map(tag => tag.trim());
         const sectionId = localStorage.getItem('sectionId');
         const subsectionId = localStorage.getItem('subsectionId');
-        const contentBlocks = getContentBlocks();  // Llama a la función que obtendrá los bloques
-    
+        
+        // Verificar que se ha seleccionado una sección y hay un título
         if (!title || !sectionId) {
             M.toast({ html: 'Error: El título y la sección son obligatorios.' });
             return;
         }
-    
-        // Realiza la solicitud AJAX para guardar el artículo
-        $.ajax({
-            url: `/api/sections/${sectionId}/articles`,
-            method: 'POST',
-            contentType: 'application/json',
-            data: JSON.stringify({ title, contentBlocks, tags, sectionId, subsectionId }),
-            success: function() {
-                M.toast({ html: 'Artículo creado correctamente' });
-                window.location.href = '/admin/sections';  // Redirigir de nuevo a la página de secciones
-            },
-            error: function(err) {
-                console.error('Error al crear el artículo:', err);
-                M.toast({ html: 'Error al crear el artículo' });
+
+        // Obtener bloques de contenido
+        const { contentBlocks, promises } = getContentBlocks();
+
+        // Esperar a que todas las promesas de lectura de imágenes se resuelvan
+        Promise.all(promises).then(() => {
+            // Verificar que al menos hay un bloque de contenido
+            if (contentBlocks.length === 0) {
+                M.toast({ html: 'Error: Debes añadir al menos un bloque de contenido.' });
+                return;
             }
+
+            // Hacer la solicitud para crear el artículo
+            $.ajax({
+                url: `/api/sections/${sectionId}/articles`,
+                method: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({ title, contentBlocks, tags, sectionId, subsectionId }),
+                success: function() {
+                    M.toast({ html: 'Artículo creado correctamente' });
+                    window.location.href = '/admin/sections';  // Redirigir de nuevo a la página de secciones
+                },
+                error: function(err) {
+                    console.error('Error al crear el artículo:', err);
+                    M.toast({ html: 'Error al crear el artículo' });
+                }
+            });
+        }).catch(err => {
+            console.error('Error al procesar las imágenes:', err);
+            M.toast({ html: 'Error al procesar las imágenes.' });
         });
     });
 });
 
-// Obtener los bloques de contenido al enviar el formulario
-function getContentBlocks() {
-    const contentBlocks = [];
-
-    $('.content-block').each(function() {
-        const blockId = $(this).attr('id').split('-')[2]; // Obtener el ID del bloque
-        const blockType = $(this).find('.block-type').val();
-
-        if (blockType === 'text') {
-            const quill = quillEditors[blockId];  // Recuperar la instancia de Quill
-            const richTextContent = quill.root.innerHTML;  // Obtener el contenido HTML generado por Quill
-            contentBlocks.push({
-                type: 'text',
-                content: richTextContent  // Guardar el contenido HTML enriquecido
-            });
-        } else if (blockType === 'image') {
-            const imageFile = $(this).find('input[type="file"]')[0].files[0];
-            if (imageFile) {
-                contentBlocks.push({
-                    type: 'image',
-                    content: imageFile  // Aquí deberías manejar la conversión a base64 si es necesario
-                });
-            }
-        }
-    });
-
-    return contentBlocks;
-}
-
 // Variable para mantener un contador de bloques
 let blockCount = 0;
+
+// Array para almacenar las instancias de Quill (editor enriquecido)
+let quillEditors = {};
 
 // Función para añadir un bloque de contenido
 function addContentBlock() {
@@ -109,12 +98,9 @@ function addContentBlock() {
     // Añadir el bloque al contenedor de bloques de contenido
     $('#content-blocks').append(blockHtml);
 
-    // Inicializar el selector de tipo de contenido con Materialize
-    $('select').formSelect();
+    // Inicializar el selector de tipo de contenido con Materialize, evitando que lo de Quill se cambie
+    $('select').not('.ql-header').formSelect();
 }
-
-// Array para almacenar las instancias de Quill (editor enriquecido)
-let quillEditors = {};
 
 // Función para manejar el cambio de tipo de bloque (texto o imagen)
 function handleBlockTypeChange(blockId) {
@@ -140,7 +126,7 @@ function handleBlockTypeChange(blockId) {
                 toolbar: [
                     [{ 'header': [1, 2, false] }],
                     ['bold', 'italic', 'underline'], // Negrita, cursiva, subrayado
-                    ['link', 'image'], // Enlaces e imágenes
+                    ['link'], // Enlaces
                     [{ 'list': 'ordered'}, { 'list': 'bullet' }],
                 ]
             }
@@ -148,6 +134,7 @@ function handleBlockTypeChange(blockId) {
 
         // Guardar la instancia de Quill en el array para referencia futura
         quillEditors[blockId] = quill;
+
     } else if (selectedType === 'image') {
         contentContainer.append(`
             <div class="file-field input-field" id="image-input">
@@ -207,4 +194,50 @@ function previewImage(event, blockId) {
 // Función para eliminar un bloque de contenido
 function removeContentBlock(blockId) {
     $(`#content-block-${blockId}`).remove();
+}
+
+// Función para convertir un archivo a base64
+function readFileAsBase64(file) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(file); // Leer el archivo como base64
+    });
+}
+
+// Función para obtener los bloques de contenido (texto enriquecido y/o imágenes)
+function getContentBlocks() {
+    const contentBlocks = [];
+    const promises = [];
+
+    $('.content-block').each(function() {
+        const blockId = $(this).attr('id').split('-')[2];  // Obtener el ID del bloque
+        const blockType = $(this).find('.block-type').val();
+
+        if (blockType === 'text') {
+            const quill = quillEditors[blockId];  // Recuperar la instancia de Quill
+            const richTextContent = quill.root.innerHTML;  // Obtener el contenido HTML generado por Quill
+            contentBlocks.push({
+                type: 'text',
+                content: richTextContent  // Guardar el contenido HTML enriquecido
+            });
+        } else if (blockType === 'image') {
+            const imageFile = $(this).find('input[type="file"]')[0].files[0];
+
+            if (imageFile) {
+                // Convertir la imagen a base64
+                const imagePromise = readFileAsBase64(imageFile).then(base64Image => {
+                    contentBlocks.push({
+                        type: 'image',
+                        content: base64Image // Imagen en base64
+                    });
+                });
+                promises.push(imagePromise);
+            }
+        }
+    });
+
+    // Retornar un objeto con los bloques de contenido y las promesas
+    return { contentBlocks, promises };
 }

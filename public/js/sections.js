@@ -286,6 +286,10 @@ function deleteSubsection(sectionId, subsectionId) {
 
 // Función para redirigir a la página de creación de artículo
 function redirectToCreateArticle(sectionId, subsectionId, sectionName, subsectionName = '') {
+    localStorage.removeItem('subsectionId');
+    localStorage.removeItem('subsectionName');
+    localStorage.removeItem('sectionName');
+    localStorage.removeItem('articleId');
     // Almacenar los IDs y nombres en localStorage
     localStorage.setItem('sectionId', sectionId);
     localStorage.setItem('sectionName', sectionName);
@@ -305,6 +309,11 @@ function redirectToCreateArticle(sectionId, subsectionId, sectionName, subsectio
 // Función para redirigir a la página de edición de un artículo
 function editArticle(articleId) {
     // Almacenar el ID del artículo en localStorage para usarlo en la página de edición
+    localStorage.removeItem('subsectionId');
+    localStorage.removeItem('subsectionName');
+    localStorage.removeItem('sectionId');
+    localStorage.removeItem('articleId');
+
     localStorage.setItem('articleId', articleId);
 
     // Redirigir al usuario a la página de edición de artículo

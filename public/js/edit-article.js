@@ -42,7 +42,7 @@ function addExistingContentBlock(type, content) {
                 toolbar: [
                     [{ 'header': [1, 2, false] }],
                     ['bold', 'italic', 'underline'],
-                    ['link', 'image'],
+                    ['link'],
                     [{ 'list': 'ordered' }, { 'list': 'bullet' }]
                 ]
             }
@@ -97,7 +97,88 @@ function populateTags(tags) {
     $('#article-tags').val(tags.join(', '));  // Convertir array a cadena separada por comas
 }
 
+// Función para obtener el nombre de la sección
+function fetchSectionName(sectionId) {
+    $.ajax({
+        url: `/api/sections/${sectionId}`,  // Asegúrate de que esta ruta existe y devuelve el nombre de la sección
+        method: 'GET',
+        success: function(data) {
+            if (data && data.title) {
+                $('#section-name').text(`Sección: ${data.title}`);
+            } else {
+                console.error('Error: No se encontró la sección.');
+                M.toast({ html: 'Error al obtener el nombre de la sección.' });
+            }
+        },
+        error: function(err) {
+            console.error('Error al obtener la sección:', err);
+            M.toast({ html: 'Error al obtener la sección.' });
+        }
+    });
+}
+
+// Función para obtener el nombre de la subsección
+function fetchSubsectionName(sectionId, subsectionId) {
+    $.ajax({
+        url: `/api/sections/${sectionId}/subsections/${subsectionId}`,  // Asegúrate de que esta ruta existe y devuelve el nombre de la subsección
+        method: 'GET',
+        success: function(data) {
+            if (data && data.title) {
+                $('#subsection-name').text(`Subsección: ${data.title}`);
+                $('#subsection-name').show();
+            } else {
+                console.error('Error: No se encontró la subsección.');
+                M.toast({ html: 'Error al obtener el nombre de la subsección.' });
+            }
+        },
+        error: function(err) {
+            console.error('Error al obtener la subsección:', err);
+            M.toast({ html: 'Error al obtener la subsección.' });
+        }
+    });
+}
+
 $(document).ready(function() {
+    // Recuperar el ID del artículo del localStorage
+    const articleId = localStorage.getItem('articleId');
+
+    if (!articleId) {
+        console.error('Error: No se encontró el articleId en localStorage.');
+        M.toast({ html: 'Error: No se encontró el artículo.' });
+        return;
+    }
+
+    // Hacer una solicitud GET para obtener los detalles del artículo
+    $.ajax({
+        url: `/api/articles/${articleId}`,
+        method: 'GET',
+        success: function(data) {
+            const sectionId = data.sectionId;  // Obtener sectionId del artículo
+            const subsectionId = data.subsectionId;  // Obtener subsectionId del artículo (si existe)
+
+            // Llamar a las funciones para rellenar los datos del artículo
+            fetchSectionName(sectionId);  // Rellenar el nombre de la sección
+            if (subsectionId) {
+                fetchSubsectionName(sectionId, subsectionId);  // Rellenar el nombre de la subsección, si existe
+            } else {
+                $('#subsection-name').hide();  // Si no hay subsección, ocultar el campo
+            }
+
+            populateTags(data.tags);  // Rellenar el campo de etiquetas
+            $('#article-title').val(data.title);  // Rellenar el título del artículo
+            M.updateTextFields();  // Asegurarse de que los labels no se superpongan
+
+            // Rellenar los bloques de contenido existentes
+            data.contentBlocks.forEach(block => {
+                addExistingContentBlock(block.type, block.content);
+            });
+        },
+        error: function(err) {
+            console.error('Error al cargar el artículo:', err);
+            M.toast({ html: 'Error al cargar el artículo.' });
+        }
+    });
+    
     // Variable para mantener los editores Quill
     const quillEditors = {};
 
