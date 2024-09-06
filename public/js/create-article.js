@@ -140,7 +140,7 @@ function handleBlockTypeChange(blockId) {
             <div class="file-field input-field" id="image-input">
                 <div class="btn">
                     <span>Subir Imagen</span>
-                    <input type="file" id="block-image-${blockId}" accept="image/*" onchange="previewImage(event, ${blockId})">
+                    <input type="file" id="block-image-${blockId}" accept="image/*" capture="camera" onchange="previewImage(event, ${blockId})">
                 </div>
                 <div class="file-path-wrapper">
                     <input class="file-path validate" type="text" placeholder="Selecciona una imagen">

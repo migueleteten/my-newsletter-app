@@ -58,24 +58,27 @@ main {
     }
 
     .collapsible i {
-        margin-right: 0.1rem;
+        margin-right: 0.1rem !important;
     }
 
     .collapsible-body i {
         margin-right: 0.1rem !important;
     }
 
-    .collapsible-body span {
-        display: inline-flex;
-        width: 65%;
-    }
-
     .collapsible-body {
         padding-left: 0.5rem;
         padding-right: 0.5rem;
     }
+
+    .subsection-article {
+        padding-left: 1rem !important;
+        padding-right: 1rem !important;
+    }
 }
 
+.collapsible i {
+    margin-right: 0.1rem !important;
+}
 
 .navbar {
     background-color: #37424A;
@@ -187,4 +190,40 @@ main {
 
 strong {
     font-weight: bold;
+}
+
+.subsection:hover {
+    background-color: #d5d7da;
+}
+
+.subsection-article:hover {
+    background-color: #d5d7da;
+}
+
+.section-article:hover {
+    background-color: #d5d7da;
+}
+
+.collapsible-header:hover {
+    background-color: #d5d7da;
+}
+
+/* Estilos personalizados para las tarjetas */
+.card {
+    margin-bottom: 20px;
+}
+
+.card-image {
+    height: 200px;
+    object-fit: cover;
+}
+
+.subsection h6 {
+    font-weight: bold;
+    margin-top: 20px;
+}
+
+/* Adaptaciones generales */
+.nav-wrapper {
+    margin-bottom: 30px;
 }

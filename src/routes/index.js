@@ -78,6 +78,11 @@ router.get('/admin/publications', ensureAdmin, (req, res) => {
     res.sendFile(path.join(__dirname, '../views/admin/publications.html'));
 });
 
+// Ruta para ver artículos
+router.get('/user/index', (req, res) => {
+    res.sendFile(path.join(__dirname, '../views/user/index.html'));
+});
+
 // Rutas para gestionar secciones (API)
 router.get('/api/sections', sectionController.listSections);
 router.post('/api/sections', ensureAdmin, sectionController.createSection);

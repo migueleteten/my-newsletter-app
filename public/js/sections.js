@@ -1,5 +1,5 @@
 // Función para cargar secciones, subsecciones y artículos
-function loadSections() {
+function loadSections(callback) {
     $.ajax({
         url: '/api/sections',
         method: 'GET',
@@ -8,74 +8,89 @@ function loadSections() {
             data.forEach(section => {
                 const sectionHtml = `
                     <li>
-                        <div class="collapsible-header" style="display: list-item;">
-                            <i class="material-icons" style="color:${section.color};vertical-align: middle;">folder</i>
-                            <span>${section.title}</span>
-                            <a href="#!" class="secondary-content" onclick="editSection('${section._id}')">
-                                <i class="material-icons">edit</i>
-                            </a>
-                            <a href="#!" class="secondary-content" onclick="deleteSection('${section._id}')">
-                                <i class="material-icons">delete</i>
-                            </a>
-                            <!-- Botón para añadir artículo a la sección -->
-                            <a href="#!" class="secondary-content" onclick="redirectToCreateArticle('${section._id}', null, '${section.title}')">
-                                <i class="material-icons">note_add</i> <!-- Icono para añadir artículo -->
-                            </a>
+                        <div class="collapsible-header" style="display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <i class="material-icons" style="color:${section.color};vertical-align: middle;">folder</i>
+                                <span>${section.title}</span>
+                            </div>
+                            <div class="collapsible-header-icons-right">
+                                <a href="#!" class="secondary-content" onclick="deleteSection('${section._id}')">
+                                    <i class="material-icons">delete</i>
+                                </a>
+                                <a href="#!" class="secondary-content" onclick="editSection('${section._id}')">
+                                    <i class="material-icons">edit</i>
+                                </a>
+                                <a href="#!" class="secondary-content" onclick="redirectToCreateArticle('${section._id}', null, '${section.title}')">
+                                    <i class="material-icons">note_add</i>
+                                </a>
+                            </div>
                         </div>
                         <div class="collapsible-body">
                             <ul>
                                 <!-- Iterar sobre subsecciones -->
                                 ${section.subsections.map(subsection => `
                                     <hr>
-                                    <li>
-                                        <i class="material-icons" style="vertical-align: middle;margin-right: 1rem;">subdirectory_arrow_right</i>
-                                        <span>${subsection.title}</span>
-                                        <a href="#!" class="secondary-content" onclick="editSubsection('${section._id}', '${subsection._id}')" style="vertical-align: middle;">
-                                            <i class="material-icons" style="margin-right: 1rem;">edit</i>
-                                        </a>
-                                        <a href="#!" class="secondary-content" onclick="deleteSubsection('${section._id}', '${subsection._id}')" style="vertical-align: middle;">
-                                            <i class="material-icons" style="margin-right: 1rem;">delete</i>
-                                        </a>
-                                        <!-- Botón para añadir artículo a la subsección -->
-                                         <a href="#!" class="secondary-content" onclick="redirectToCreateArticle('${section._id}', '${subsection._id}', '${section.title}', '${subsection.title}')" style="vertical-align: middle;">
-                                            <i class="material-icons" style="margin-right: 1rem">note_add</i> <!-- Icono para añadir artículo -->
-                                        </a>
-                                        <!-- Artículos de la subsección -->
-                                        <ul style="margin-top: 10px;">
-                                            ${subsection.articles ? subsection.articles.map(article => `
-                                                <li>
+                                    <li class="subsection" style="display: flex; justify-content: space-between; align-items: center;">
+                                        <div>
+                                            <i class="material-icons" style="vertical-align: middle;margin-right: 1rem;">subdirectory_arrow_right</i>
+                                            <span>${subsection.title}</span>
+                                        </div>
+                                        <div class="collapsible-body-icons-right" style="display: flex; align-items: center;">
+                                            <a href="#!" class="secondary-content" onclick="redirectToCreateArticle('${section._id}', '${subsection._id}', '${section.title}', '${subsection.title}')" style="vertical-align: middle;">
+                                                <i class="material-icons" style="margin-right: 1rem">note_add</i>
+                                            </a>
+                                            <a href="#!" class="secondary-content" onclick="editSubsection('${section._id}', '${subsection._id}')" style="vertical-align: middle;">
+                                                <i class="material-icons" style="margin-right: 1rem;">edit</i>
+                                            </a>
+                                            <a href="#!" class="secondary-content" onclick="deleteSubsection('${section._id}', '${subsection._id}')" style="vertical-align: middle;">
+                                                <i class="material-icons" style="margin-right: 1rem;">delete</i>
+                                            </a>
+                                        </div>
+                                    </li>
+
+                                    <!-- Artículos de la subsección -->
+                                    <ul style="margin-top: 10px;">
+                                        ${subsection.articles ? subsection.articles.map(article => `
+                                            <li class="subsection-article" style="display: flex; justify-content: space-between; align-items: center; padding-left: 2rem; padding-right: 5rem;" data-id="${article._id}"> <!-- Ajustamos la sangría con padding-left -->
+                                                <div>
                                                     <i class="material-icons" style="vertical-align: middle;margin-right: 1rem;">description</i>
                                                     <span>${article.title}</span>
+                                                </div>
+                                                <div class="subsection-article-icons-right" style="display: flex; align-items: center">
                                                     <a href="#!" class="secondary-content" onclick="toggleStarArticle('${article._id}')" style="vertical-align: middle;">
-                                                        <i class="material-icons">${article.starred ? 'star' : 'star_border'}</i>
+                                                        <i class="material-icons" style="color: gray;">${article.starred ? 'star' : 'star_border'}</i>
                                                     </a>
                                                     <a href="#!" class="secondary-content" onclick="editArticle('${article._id}')" style="vertical-align: middle;">
-                                                        <i class="material-icons" style="margin-right: 1rem;">edit</i>
+                                                        <i class="material-icons" style="color: gray;">edit</i>
                                                     </a>
                                                     <a href="#!" class="secondary-content" onclick="deleteArticle('${article._id}')" style="vertical-align: middle;">
-                                                        <i class="material-icons" style="margin-right: 1rem;">delete</i>
+                                                        <i class="material-icons" style="color: gray;">delete</i>
                                                     </a>
-                                                </li>
-                                            `).join('') : '<li>No hay artículos en esta subsección.</li>'}
-                                        </ul>
-                                    </li>                                    
+                                                </div>
+                                            </li>
+                                        `).join('') : '<li>No hay artículos en esta subsección.</li>'}
+                                    </ul>                                 
                                 `).join('')}
                                 
                                 <!-- Artículos de la sección (que no están en subsecciones) -->
                                 <hr>
                                 ${section.articles ? section.articles.map(article => `
-                                    <li>
-                                        <i class="material-icons" style="vertical-align: middle;margin-right: 1rem;">description</i>
-                                        <span>${article.title}</span>
-                                        <a href="#!" class="secondary-content" onclick="toggleStarArticle('${article._id}')" style="vertical-align: middle;">
-                                            <i class="material-icons">${article.starred ? 'star' : 'star_border'}</i>
-                                        </a>
-                                        <a href="#!" class="secondary-content" onclick="editArticle('${article._id}')" style="vertical-align: middle;">
-                                            <i class="material-icons" style="margin-right: 1rem;">edit</i>
-                                        </a>
-                                        <a href="#!" class="secondary-content" onclick="deleteArticle('${article._id}')" style="vertical-align: middle;">
-                                            <i class="material-icons" style="margin-right: 1rem;">delete</i>
-                                        </a>
+                                    <li class="section-article" style="display: flex; justify-content: space-between; align-items: center;" data-id="${article._id}">
+                                        <div>
+                                            <i class="material-icons" style="vertical-align: middle;margin-right: 1rem;">description</i>
+                                            <span>${article.title}</span>
+                                        </div>
+                                        <div class="section-article-icons-right" style="display: flex; align-items: center;">
+                                            <a href="#!" class="secondary-content" onclick="toggleStarArticle('${article._id}')" style="vertical-align: middle;">
+                                                <i class="material-icons">${article.starred ? 'star' : 'star_border'}</i>
+                                            </a>
+                                            <a href="#!" class="secondary-content" onclick="editArticle('${article._id}')" style="vertical-align: middle;">
+                                                <i class="material-icons">edit</i>
+                                            </a>
+                                            <a href="#!" class="secondary-content" onclick="deleteArticle('${article._id}')" style="vertical-align: middle;">
+                                                <i class="material-icons">delete</i>
+                                            </a>
+                                        </div>
                                     </li>
                                 `).join('') : '<li>No hay artículos en esta sección.</li>'}
                                 
@@ -92,6 +107,11 @@ function loadSections() {
                 $('.collapsible').append(sectionHtml);
             });
             $('.collapsible').collapsible();
+
+            // Llamar al callback después de actualizar el DOM
+            if (callback && typeof callback === 'function') {
+                callback(); // El callback que maneja abrir la sección activa
+            }
         },
         error: function() {
             M.toast({html: 'Error al cargar las secciones.'});
@@ -349,7 +369,36 @@ function toggleStarArticle(articleId) {
         method: 'PUT',
         success: function(data) {
             M.toast({ html: `Artículo ${data.starred ? 'destacado' : 'eliminado de destacados'}.` });
-            loadSections(); // Volver a cargar las secciones para reflejar los cambios
+            
+            // Recarga las secciones y subsecciones
+            loadSections(function() {
+                console.log('Secciones recargadas, buscando el artículo destacado...');
+
+                let sectionIndex = null;
+
+                // Buscar el artículo destacado en subsecciones o secciones
+                $('.collapsible > li').each(function(index) {
+                    console.log(`Revisando sección con índice: ${index}`);
+
+                    const foundInSubsection = $(this).find(`.subsection-article[data-id="${articleId}"]`).length > 0;
+                    const foundInSection = $(this).find(`.section-article[data-id="${articleId}"]`).length > 0;
+
+                    console.log(`Artículo encontrado en subsección: ${foundInSubsection}, sección: ${foundInSection}`);
+
+                    if (foundInSubsection || foundInSection) {
+                        sectionIndex = index;
+                        console.log('Artículo encontrado en la sección con índice:', sectionIndex);
+                        return false; // Rompe el bucle
+                    }
+                });
+
+                if (sectionIndex !== null) {
+                    console.log('Abriendo la sección con índice:', sectionIndex);
+                    $('.collapsible').collapsible('open', sectionIndex);
+                } else {
+                    console.log('No se encontró el artículo destacado en ninguna sección.');
+                }
+            });
         },
         error: function(err) {
             console.error('Error al destacar el artículo:', err);

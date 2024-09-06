@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ARCA grupo Carranza - Newsletter</title>
+    <!-- Importar Materialize CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css" rel="stylesheet">
+    <!-- Importar Iconos de Google -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <!-- Estilos personalizados -->
+    <link href="/css/styles.css" rel="stylesheet">
+</head>
+<body>
+
+    <!-- Incluir el header -->
+    <div id="header"></div>
+
+    <!-- Contenido principal -->
+    <main class="container">
+        <!-- Barra de búsqueda -->
+        <nav>
+          <div class="nav-wrapper">
+            <form>
+              <div class="input-field">
+                <input id="search" type="search" required>
+                <label class="label-icon" for="search"><i class="material-icons">search</i></label>
+                <i class="material-icons">close</i>
+              </div>
+            </form>
+          </div>
+        </nav>
+
+        <!-- Artículos Destacados -->
+        <h4>Artículos Destacados</h4>
+        <div class="row" id="starred-articles">
+          <!-- Aquí se agregarán dinámicamente las tarjetas de los artículos destacados -->
+        </div>
+
+        <!-- Secciones y Subsecciones -->
+        <h4>Secciones</h4>
+        <div id="sections">
+          <!-- Aquí se agregarán dinámicamente las secciones, subsecciones y artículos -->
+        </div>
+    </main>
+
+    <!-- Incluir el footer -->
+    <div id="footer"></div>
+
+    <!-- Importar Materialize JS y jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+    <!-- Script para cargar header y footer -->
+    <script src="/js/common.js"></script>
+    <script src="/js/userIndex.js"></script>
+</body>
+</html>
