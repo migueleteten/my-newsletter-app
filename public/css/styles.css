@@ -192,38 +192,157 @@ strong {
     font-weight: bold;
 }
 
-.subsection:hover {
-    background-color: #d5d7da;
+/* General */
+.section {
+    margin-bottom: 40px;
 }
 
-.subsection-article:hover {
-    background-color: #d5d7da;
+.section-title {
+    display: flex;
+    align-items: center;
 }
 
-.section-article:hover {
-    background-color: #d5d7da;
+.circle {
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
 }
 
-.collapsible-header:hover {
-    background-color: #d5d7da;
+.search-bar {
+    background-color: #f0f0f0;
+    border-radius: 50px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    padding: 10px 20px;
 }
 
-/* Estilos personalizados para las tarjetas */
-.card {
-    margin-bottom: 20px;
+/* Artículos */
+.article-card {
+    position: relative;
+    height: 400px;  /* Altura fija para toda la tarjeta */
+    display: block; /* Permitir que los hijos tengan alturas fijas */
+    overflow: visible; /* Asegurar que el círculo sea visible */
+}
+
+.card-image-container {
+    position: relative;
+    height: 200px; /* Altura fija para la imagen */
+    width: 100%;
 }
 
 .card-image {
-    height: 200px;
+    height: 100%;
+    width: 100%;
     object-fit: cover;
 }
 
-.subsection h6 {
-    font-weight: bold;
-    margin-top: 20px;
+.star-icon {
+    position: absolute;
+    top: 5px;
+    left: 5px;
+    color: #FFD700;
 }
 
-/* Adaptaciones generales */
-.nav-wrapper {
-    margin-bottom: 30px;
+/* Círculo de color de la sección en la esquina superior derecha */
+.section-color {
+    position: absolute;
+    top: -7.5px;
+    right: -7.5px;
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+    background-color: inherit;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    z-index: 10; /* Asegurar que el círculo esté por encima de la tarjeta */
+}
+
+/* Bloque de información con altura fija */
+.card-content {
+    height: 200px;  /* Altura fija para el bloque de título, extracto, fecha y etiquetas */
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start; /* Colocar el contenido del título y extracto al principio */
+    padding: 18px !important;
+    position: relative;
+}
+
+/* Título del artículo */
+.article-title {
+    font-size: 1.2rem;
+    font-weight: bold;
+    text-transform: initial;
+    display: block;
+    margin-bottom: 10px;
+    overflow: hidden;
+}
+
+/* Extracto del artículo */
+.article-extract {
+    font-size: 0.9rem;
+    color: #666;
+    line-height: 1.2rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    display: -moz-box;
+    display: -ms-flexbox;
+    display: -webkit-flex;
+    display: flex;
+    -webkit-box-orient: vertical;
+    -moz-box-orient: vertical;
+    box-orient: vertical;
+    -webkit-line-clamp: 3; /* Para navegadores con prefijo */
+    line-clamp: 3; /* Propiedad estándar */
+    white-space: normal;
+    margin-bottom: 10px;
+    flex-grow: 1; /* Hacer que el extracto ocupe el espacio disponible */
+}
+
+/* Meta: Fecha, badge y etiquetas pegadas al borde inferior */
+.article-meta {
+    position: absolute;
+    bottom: 10px; /* Pegado al borde inferior */
+    left: 10px;
+    right: 10px;
+    display: flex;
+    flex-direction: column; /* Organizar en columnas */
+    padding: 0 5px;
+}
+
+/* Fecha y badge agrupados en una fila */
+.meta-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.8rem;
+    margin-bottom: 8px; /* Margen entre fecha y etiquetas */
+}
+
+.article-date {
+    color: #888;
+    font-style: italic;
+}
+
+.new-badge {
+    font-size: 0.8rem;
+    padding: 2px 8px;
+    border-radius: 50px;
+    background-color: red;
+    color: white;
+    font-style: italic;
+}
+
+/* Etiquetas del artículo */
+.article-tags {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.tag {
+    background-color: #f0f0f0;
+    border-radius: 50px;
+    padding: 2px 8px;
+    font-size: 0.8rem;
+    color: #666;
+    margin-right: 5px;
+    margin-bottom: 5px; /* Pequeño margen para ajuste en varias líneas */
 }

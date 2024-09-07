@@ -1,5 +1,6 @@
 const Section = require('../models/sectionModel');  // Asegúrate de importar el modelo Section
 const Article = require('../models/articleModel');  // Importar el modelo Article
+const mongoose = require('mongoose');  // Asegúrate de importar mongoose
 
 // Crear un nuevo artículo
 exports.createArticle = async (req, res) => {
@@ -61,6 +62,47 @@ exports.listArticlesBySection = async (req, res) => {
         res.status(500).json({ error: 'Error al listar los artículos.' });
     }
 };
+
+// Obtener artículos por un conjunto de IDs
+exports.getArticlesByIds = async (req, res) => {
+    try {
+      const { articleIds } = req.body;  // Recibe un array de IDs en el cuerpo de la solicitud
+      console.log('IDs de artículos recibidos:', articleIds);  // Verificar si los IDs llegan al servidor
+  
+      if (!articleIds || articleIds.length === 0) {
+        return res.status(400).json({ message: 'Debe proporcionar al menos un ID de artículo.' });
+      }
+  
+      // Extraer el ID correcto si viene en el formato {$oid: 'id'}
+      const validIds = articleIds.map(id => {
+        // Si el ID está anidado como {$oid: "id"}, extraer el valor
+        return typeof id === 'object' && id.$oid ? id.$oid : id;
+      }).filter(id => mongoose.Types.ObjectId.isValid(id));  // Validar solo los IDs válidos
+  
+      if (validIds.length === 0) {
+        return res.status(400).json({ message: 'Ninguno de los IDs proporcionados es válido.' });
+      }
+
+      console.log('IDs válidos:', validIds);  // Verificación de los IDs válidos
+  
+      // Convertir los IDs válidos a ObjectId
+      const objectIds = validIds.map(id => mongoose.Types.ObjectId(id));
+  
+      // Buscar los artículos por los IDs
+      const articles = await Article.find({ _id: { $in: objectIds } });
+  
+      if (articles.length === 0) {
+        return res.status(404).json({ message: 'No se encontraron artículos con los IDs proporcionados.' });
+      }
+
+      console.log('Artículos encontrados:', articles);  // Verificación de los artículos encontrados
+  
+      res.status(200).json(articles);
+    } catch (error) {
+      console.error('Error al obtener los artículos:', error);
+      res.status(500).json({ message: 'Error al obtener los artículos.', error });
+    }
+  };
 
 // Obtener los detalles de un artículo específico
 exports.getArticleById = async (req, res) => {

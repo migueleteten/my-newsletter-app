@@ -110,4 +110,7 @@ router.delete('/api/articles/:articleId', ensureAdmin, articleController.deleteA
 router.put('/api/articles/:articleId/highlight', ensureAdmin, articleController.highlightArticle);  // Destacar artículo
 router.post('/api/sections/:sectionId/articles/reorder', ensureAdmin, articleController.reorderArticles);  // Reordenar artículos
 
+// Ruta para obtener artículos por IDs
+router.post('/api/articles', articleController.getArticlesByIds);
+
 module.exports = router;
