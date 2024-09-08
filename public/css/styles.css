@@ -340,8 +340,12 @@ strong {
 @media only screen and (max-width: 1022px) {
     .banner {
         margin-top: 40px;
-        margin-left: 40px;
-        width: calc(50% - 40px);
+        margin-left: 0px;
+        width: 100%;
+    }
+
+    #search {
+        padding-left: 4rem !important;
     }
 }
 
@@ -353,6 +357,7 @@ strong {
     transition: all 0.25s ease;
     min-height: 528px;
     cursor: pointer;
+    overflow: hidden;
 }
 
 .mixin-pillar-guide-other--banner > .after-load-animate:hover {
@@ -368,6 +373,7 @@ strong {
     height: 200px;
     overflow: hidden;
     border-radius: 9px 9px 0 0;
+    box-shadow: 0 -1px 5px 0 #6f6f6f;
 }
 
 .cover-image img {
@@ -436,7 +442,6 @@ strong {
     font-family: "Montserrat";
     font-weight: 400;
     -webkit-font-smoothing: auto;
-    display: inline-block;
     vertical-align: top;
     font-size: 0.8rem;
 }
