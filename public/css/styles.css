@@ -1,25 +1,87 @@
+@font-face {
+    font-family: 'Montserrat';
+    font-style: normal;
+    font-weight: 200;
+    src: url('/fonts/montserrat-v15-latin-200.woff2') format('woff2'),
+        url('/fonts/montserrat-v15-latin-200.woff') format('woff');
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Montserrat';
+    font-style: normal;
+    font-weight: 300;
+    src: url('/fonts/montserrat-v15-latin-300.woff2') format('woff2'),
+        url('/fonts/montserrat-v15-latin-300.woff') format('woff');
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Montserrat';
+    font-style: normal;
+    font-weight: 400;
+    src: url('/fonts/montserrat-v15-latin-regular.woff2') format('woff2'),
+        url('/fonts/montserrat-v15-latin-regular.woff') format('woff');
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Montserrat';
+    font-style: normal;
+    font-weight: 500;
+    src: url('/fonts/montserrat-v15-latin-500.woff2') format('woff2'),
+        url('/fonts/montserrat-v15-latin-500.woff') format('woff');
+    font-display: swap;
+    
+}
+
+@font-face {
+    font-family: 'Montserrat';
+    font-style: normal;
+    font-weight: 600;
+    src: url('/fonts/montserrat-v15-latin-600.woff2') format('woff2'),
+        url('/fonts/montserrat-v15-latin-600.woff') format('woff');
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Montserrat';
+    font-style: normal;
+    font-weight: 700;
+    src: url('/fonts/montserrat-v18-latin-700.woff2') format('woff2'),
+        url('/fonts/montserrat-v18-latin-700.woff') format('woff');
+    font-display: swap;
+}
+
 /* Asegurar que el contenido del body se expanda adecuadamente */
-html, body {
+html,
+body {
     height: 100%;
     margin: 0;
     padding: 0;
-    overflow-x: hidden; /* Evitar scroll lateral */
+    overflow-x: hidden;
+    /* Evitar scroll lateral */
 }
 
 body {
     display: flex;
     flex-direction: column;
     min-height: 100vh;
-    background-color: #F5F5F5; /* Fondo claro */
+    background-color: #F5F5F5;
+    /* Fondo claro */
+    font-family: 'Montserrat', sans-serif;
+    background-color: #37424A;
 }
 
 /* Asegurar que el main ocupe el espacio necesario */
 main {
     flex: 1 0 auto;
     padding: 20px;
-    overflow-y: auto; /* Habilitar scroll vertical si es necesario */
+    overflow-y: auto;
+    /* Habilitar scroll vertical si es necesario */
     width: 100%;
-    box-sizing: border-box; /* Asegurar que el padding se incluya dentro del tamaño del contenedor */
+    box-sizing: border-box;
+    /* Asegurar que el padding se incluya dentro del tamaño del contenedor */
 }
 
 /* Ajustar el footer para que no interfiera con el contenido */
@@ -36,6 +98,21 @@ main {
     margin-bottom: 30px;
 }
 
+h2 {
+    font-size: 20px !important;
+    margin: 0 !important;
+    margin-top: 10px !important;
+    font-weight: 600;
+}
+
+h1 {
+    font-size: 2rem !important;
+    font-weight: 500;
+    margin: 0 !important;
+    transform: translate(10px, 20px);
+    color: white;
+}
+
 /* Evitar que el footer se superponga con el contenido en pantallas pequeñas */
 @media only screen and (max-width: 768px) {
     body {
@@ -43,7 +120,8 @@ main {
     }
 
     main {
-        flex-grow: 1; /* Asegurar que main crezca adecuadamente */
+        flex-grow: 1;
+        /* Asegurar que main crezca adecuadamente */
         padding: 0;
     }
 
@@ -52,7 +130,8 @@ main {
     }
 
     #footer {
-        position: relative; /* El footer no será fijo en móviles */
+        position: relative;
+        /* El footer no será fijo en móviles */
         bottom: 0;
         width: 100%;
     }
@@ -83,44 +162,61 @@ main {
 .navbar {
     background-color: #37424A;
 }
+
 .navbar .brand-logo img {
     height: 50px;
     margin-left: 20px;
     vertical-align: middle;
 }
+
 .dashboard-card {
     margin-top: 20px;
 }
+
 .card-content i {
     font-size: 4rem;
     margin-bottom: 15px;
-    color: #E37222; /* Color corporativo */
+    color: #E37222;
+    /* Color corporativo */
 }
+
 .card-action .btn {
-    background-color: #E37222; /* Botones con color corporativo */
+    background-color: #E37222;
+    /* Botones con color corporativo */
 }
 
 .input-field {
-    margin-bottom: 20px; /* Añade espacio entre los campos de entrada */
+    margin-bottom: 20px;
+    /* Añade espacio entre los campos de entrada */
 }
 
 .label-container {
-    margin-bottom: 20px; /* Añade espacio específicamente para el label */
+    margin-bottom: 20px;
+    /* Añade espacio específicamente para el label */
 }
 
 .input-field label {
-    font-size: 1rem; /* Ajustar el tamaño de la fuente */
-    color: #37424A; /* Color del texto del label */
-    display: inline-block; /* Asegura que el label ocupe su propio espacio */
-    margin: 0; /* Remover cualquier margen predeterminado */
-    padding: 0; /* Remover cualquier padding predeterminado */
+    font-size: 1rem;
+    /* Ajustar el tamaño de la fuente */
+    color: #37424A;
+    /* Color del texto del label */
+    display: inline-block;
+    /* Asegura que el label ocupe su propio espacio */
+    margin: 0;
+    /* Remover cualquier margen predeterminado */
+    padding: 0;
+    /* Remover cualquier padding predeterminado */
+    left: 2rem !important;
 }
 
 .color-grid {
     display: grid;
-    grid-template-columns: repeat(4, 1fr); /* Crear una cuadrícula de 4 columnas */
-    gap: 10px; /* Espacio entre los círculos */
-    margin-top: 0; /* Asegura que no haya margen superior */
+    grid-template-columns: repeat(4, 1fr);
+    /* Crear una cuadrícula de 4 columnas */
+    gap: 10px;
+    /* Espacio entre los círculos */
+    margin-top: 0;
+    /* Asegura que no haya margen superior */
 }
 
 .color-circle {
@@ -134,7 +230,8 @@ main {
 
 .color-circle:hover,
 .color-circle.selected {
-    border: 2px solid #000; /* Resaltar el círculo seleccionado */
+    border: 2px solid #000;
+    /* Resaltar el círculo seleccionado */
 }
 
 .modal-footer {
@@ -181,168 +278,196 @@ main {
 
 /* Estilos para la vista previa de la imagen */
 .image-preview img {
-    max-width: 100%; /* La imagen ocupa el 100% del ancho disponible */
-    max-height: 300px; /* Alto máximo de la imagen */
-    object-fit: contain; /* Mantener la proporción de la imagen */
+    max-width: 100%;
+    /* La imagen ocupa el 100% del ancho disponible */
+    max-height: 300px;
+    /* Alto máximo de la imagen */
+    object-fit: contain;
+    /* Mantener la proporción de la imagen */
     display: block;
-    margin: 10px 0; /* Espacio alrededor de la imagen */
+    margin: 10px 0;
+    /* Espacio alrededor de la imagen */
 }
 
 strong {
     font-weight: bold;
 }
 
-/* General */
-.section {
-    margin-bottom: 40px;
-}
-
-.section-title {
-    display: flex;
-    align-items: center;
-}
-
-.circle {
-    width: 15px;
-    height: 15px;
-    border-radius: 50%;
-}
-
 .search-bar {
-    background-color: #f0f0f0;
-    border-radius: 50px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    padding: 10px 20px;
+    background-color: #82888c;
+    border-radius: 100px;
 }
 
-/* Artículos */
-.article-card {
-    position: relative;
-    height: 400px;  /* Altura fija para toda la tarjeta */
-    display: block; /* Permitir que los hijos tengan alturas fijas */
-    overflow: visible; /* Asegurar que el círculo sea visible */
+.nav .nav-wrapper {
+    border-radius: 100px;
 }
 
-.card-image-container {
+.nav .nav-wrapper .form {
+    border-radius: 100px;
+}
+
+.nav .nav-wrapper .form .input-field {
+    border-radius: 100px;
+}
+
+#search {
+    border-radius: 100px;
+    padding-left: 5rem !important;
+}
+
+.nav .nav-wrapper .form .input-field .label-icon {
+    left: 2rem;
+}
+
+.banner {
+    text-align: left;
+    margin-top: 62px;
+    display: inline-block;
+    vertical-align: top;
+    margin-left: 5%;
+    width: calc(33.33333% - 5%);
     position: relative;
-    height: 200px; /* Altura fija para la imagen */
+}
+
+@media only screen and (max-width: 766px) {
+    .banner {
+        margin-top: 40px;
+        margin-left: 0;
+        width: 100%;
+    }
+}
+
+@media only screen and (max-width: 1022px) {
+    .banner {
+        margin-top: 40px;
+        margin-left: 40px;
+        width: calc(50% - 40px);
+    }
+}
+
+.mixin-pillar-guide-other--banner .after-load-animate {
+    position: relative;
+    background: #fff;
+    border-radius: 9px;
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.1);
+    transition: all 0.25s ease;
+    min-height: 528px;
+    cursor: pointer;
+}
+
+.mixin-pillar-guide-other--banner > .after-load-animate:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 2px 30px 0 #404040;
+}
+
+#articles-list {
+    font-size: 0;
+}
+
+.cover-image {
+    height: 200px;
+    overflow: hidden;
+    border-radius: 9px 9px 0 0;
+}
+
+.cover-image img {
     width: 100%;
-}
-
-.card-image {
     height: 100%;
-    width: 100%;
     object-fit: cover;
 }
 
 .star-icon {
     position: absolute;
-    top: 5px;
-    left: 5px;
-    color: #FFD700;
-}
-
-/* Círculo de color de la sección en la esquina superior derecha */
-.section-color {
-    position: absolute;
-    top: -7.5px;
-    right: -7.5px;
-    width: 15px;
-    height: 15px;
-    border-radius: 50%;
-    background-color: inherit;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-    z-index: 10; /* Asegurar que el círculo esté por encima de la tarjeta */
-}
-
-/* Bloque de información con altura fija */
-.card-content {
-    height: 200px;  /* Altura fija para el bloque de título, extracto, fecha y etiquetas */
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start; /* Colocar el contenido del título y extracto al principio */
-    padding: 18px !important;
-    position: relative;
-}
-
-/* Título del artículo */
-.article-title {
-    font-size: 1.2rem;
-    font-weight: bold;
-    text-transform: initial;
-    display: block;
-    margin-bottom: 10px;
-    overflow: hidden;
-}
-
-/* Extracto del artículo */
-.article-extract {
-    font-size: 0.9rem;
-    color: #666;
-    line-height: 1.2rem;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    display: -webkit-box;
-    display: -moz-box;
-    display: -ms-flexbox;
-    display: -webkit-flex;
-    display: flex;
-    -webkit-box-orient: vertical;
-    -moz-box-orient: vertical;
-    box-orient: vertical;
-    -webkit-line-clamp: 3; /* Para navegadores con prefijo */
-    line-clamp: 3; /* Propiedad estándar */
-    white-space: normal;
-    margin-bottom: 10px;
-    flex-grow: 1; /* Hacer que el extracto ocupe el espacio disponible */
-}
-
-/* Meta: Fecha, badge y etiquetas pegadas al borde inferior */
-.article-meta {
-    position: absolute;
-    bottom: 10px; /* Pegado al borde inferior */
+    top: 10px;
     left: 10px;
+    color: gold;
+}
+
+.content {
+    padding: 20px 25px 20px !important;
+    border-top: #d9d9d9;
+    display: block;
+}
+
+.content .row {
+    margin-bottom: 0;
+}
+
+.title {
+    display: block;
+    font-family: "Montserrat";
+    font-weight: 700;
+    -webkit-font-smoothing: auto;
+    color: #121212;
+    font-size: 2.4rem;
+    line-height: 1.3;
+}
+
+.align-bottom {
+    vertical-align: bottom !important;
+    display: block;
+    position: absolute;
+    right: 25px;
+    bottom: 20px;
+    left: 25px;
+    margin-top: 30px;
+    padding-top: 25px;
+}
+
+.corporate--category-and-date {
+    line-height: 2.3rem;
+    padding-bottom: 7px;
+    text-align: left;
+}
+
+.corporate--category-and-date .category {
+    font-family: "Montserrat";
+    font-weight: 400;
+    -webkit-font-smoothing: auto;
+    padding-right: 2px;
+    color: #82888c;
+    display: inline;
+    font-size: 0.8rem;
+}
+
+.corporate--category-and-date .date {
+    color: #82888c;
+    padding-left: 2px;
+    font-family: "Montserrat";
+    font-weight: 400;
+    -webkit-font-smoothing: auto;
+    display: inline-block;
+    vertical-align: top;
+    font-size: 0.8rem;
+}
+
+.title a {
+    cursor: pointer;
+    outline: none;
+    text-decoration: none;
+    color: inherit;
+    font-family: "Montserrat";
+    font-weight: 600;
+}
+
+.excerpt {
+    display: block;
+    padding: 10px 0;
+    padding-top: 20px;
+    font-size: 0.9rem;
+    font-family: "Montserrat";
+    font-weight: 400;
+    -webkit-font-smoothing: auto;
+    line-height: 1.7;
+    color: #2b2b2b;
+}
+
+.circle {
+    position: absolute;
+    top: 10px;
     right: 10px;
-    display: flex;
-    flex-direction: column; /* Organizar en columnas */
-    padding: 0 5px;
-}
-
-/* Fecha y badge agrupados en una fila */
-.meta-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-size: 0.8rem;
-    margin-bottom: 8px; /* Margen entre fecha y etiquetas */
-}
-
-.article-date {
-    color: #888;
-    font-style: italic;
-}
-
-.new-badge {
-    font-size: 0.8rem;
-    padding: 2px 8px;
-    border-radius: 50px;
-    background-color: red;
-    color: white;
-    font-style: italic;
-}
-
-/* Etiquetas del artículo */
-.article-tags {
-    display: flex;
-    flex-wrap: wrap;
-}
-
-.tag {
-    background-color: #f0f0f0;
-    border-radius: 50px;
-    padding: 2px 8px;
-    font-size: 0.8rem;
-    color: #666;
-    margin-right: 5px;
-    margin-bottom: 5px; /* Pequeño margen para ajuste en varias líneas */
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background-color: #ddd;
 }

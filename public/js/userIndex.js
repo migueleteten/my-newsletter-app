@@ -1,170 +1,215 @@
 $(document).ready(function() {
   // Función para cargar las secciones y subsecciones con sus artículos
-  function loadSections() {
-    console.log('Iniciando la carga de secciones...');
+  function loadArticles() {
   
     $.ajax({
-      url: '/api/sections',  // Obtener las secciones y subsecciones
+      url: '/api/sections',  // Obtener los artículos (ahora tratamos todos juntos)
       method: 'GET',
       success: function(sections) {
-        console.log('Secciones recibidas:', sections);
-        
-        const sectionContainer = $('#sections');
-        const starredArticles = [];
+  
+        const articlesList = $('#articles-list');  // Un contenedor para todos los artículos
+        const starredArticles = [];  // Almacena los artículos destacados
   
         sections.forEach(section => {
-          // Verificar si la sección o alguna de sus subsecciones contiene artículos
-          const hasSectionArticles = section.articles.length > 0;
-          const hasSubsectionsWithArticles = section.subsections.some(subsection => subsection.articles.length > 0);
-  
-          // Mostrar la sección solo si tiene artículos o alguna subsección con artículos
-          if (hasSectionArticles || hasSubsectionsWithArticles) {
-            // Crear el contenedor de la sección
-            const sectionDiv = $(`
-              <div class="section">
-                <div class="divider"></div>
-                <div class="row">
-                  <div class="col s12 section-header">
-                    <div class="section-title">
-                      <div class="circle" style="background-color: ${section.color};"></div>
-                      <h4 class="grey-text text-darken-3 italic">${section.title}</h4>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            `);
-  
-            // Mostrar los artículos de la sección principal
-            if (hasSectionArticles) {
-              const articlesRow = $('<div class="row"></div>');
-              section.articles.forEach(article => {
-                const articleDiv = createArticleCard(article, section.color);
-                articlesRow.append(articleDiv);
-  
-                // Verificar si el artículo está destacado (starred: true)
-                if (article.starred) {
-                  starredArticles.push(article);
-                }
+          // Añadir artículos de la sección principal
+          section.articles.forEach(article => {
+            if (article.starred) {
+              starredArticles.push(article);  // Almacenar artículos destacados
+            } else {
+              createArticleCard(article, section.color).then(articleCard => {
+                articlesList.append(articleCard);  // Añadir los normales
               });
-              sectionDiv.append(articlesRow);
             }
+          });
   
-            // Mostrar las subsecciones con artículos
-            section.subsections.forEach(subsection => {
-              if (subsection.articles && subsection.articles.length > 0) {
-                // Crear subsección con su contenedor
-                const subsectionDiv = $(`
-                  <div class="row">
-                    <div class="col s12 subsection-header">
-                      <div class="divider"></div>
-                      <h5 class="grey-text text-darken-3 italic">
-                        <i class="material-icons">subdirectory_arrow_right</i> ${subsection.title}
-                      </h5>
-                    </div>
-                    <div class="col s12 subsection-articles" style="padding-left: 30px;"></div>  <!-- Mover este div aquí -->
-                  </div>
-                `);
-            
-                const subsectionArticlesRow = subsectionDiv.find('.subsection-articles');
-            
-                subsection.articles.forEach(article => {
-                  console.log('Artículo en subsección:', article.title);  // Depuración para verificar que los artículos están presentes
-                  const articleDiv = createArticleCard(article, section.color);
-            
-                  // Añadir cada artículo al contenedor de la subsección
-                  subsectionArticlesRow.append(articleDiv);
-
-                   // Verificar si el artículo está destacado (starred: true)
-                  if (article.starred) {
-                    starredArticles.push(article);
-                  }
+          // Añadir artículos de las subsecciones
+          section.subsections.forEach(subsection => {
+            subsection.articles.forEach(article => {
+              if (article.starred) {
+                starredArticles.push(article);  // Almacenar artículos destacados
+              } else {
+                createArticleCard(article, section.color).then(articleCard => {
+                  articlesList.append(articleCard);  // Añadir los normales
                 });
-            
-                // Asegúrate de que añadimos la subsección completa a la sección
-                sectionDiv.append(subsectionDiv);
               }
             });
-  
-            // Añadir la sección al contenedor de secciones
-            sectionContainer.append(sectionDiv);
-          }
+          });
         });
   
-        // Mostrar los artículos destacados en el div #starred-articles
-        displayStarredArticles(starredArticles);
+        // Mostrar primero los artículos destacados
+        starredArticles.forEach(article => {
+          searchSectionColor(article).then(color => {
+            createArticleCard(article, color, true).then(articleCard => {
+              articlesList.prepend(articleCard);  // Mostrar destacados al principio
+            });
+          }).catch(error => {
+            console.error('Error al obtener el color:', error);
+          });          
+        });
       },
       error: function(error) {
-        console.error('Error al cargar las secciones:', error);
+        console.error('Error al cargar los artículos:', error);
       }
     });
   }
   
-  // Función para limpiar el texto y eliminar cualquier formato o estilos
-  function stripHTML(html) {
-    var tmp = document.createElement("DIV");
-    tmp.innerHTML = html;
-    return tmp.textContent || tmp.innerText || "";
-  }
+  // Crear la tarjeta del artículo (ahora usa Promesa para obtener la categoría)
+  function createArticleCard(article, color, isStarred = false) {
+    console.log(`color encontrado:${color}`);
+    return new Promise((resolve) => {
+      Promise.all([getCategory(article), getSubcategory(article)]).then(([category, subcategory]) => {
+        
+        const starIcon = isStarred ? '<i class="material-icons star-icon">star</i>' : '';  // Añadir la estrellita si es destacado
+        const sectionCircle = `<div class="circle" style="background-color: ${color};"></div>`;  // Círculo del color de la sección
 
-  // Función para crear una tarjeta de artículo
-  function createArticleCard(article, sectionColor) {
-    const imageHTML = article.contentBlocks.find(block => block.type === 'image') 
-                      ? `<img src="${article.contentBlocks.find(block => block.type === 'image').content}" class="card-image">`
-                      : '<img src="/path/to/placeholder.jpg" class="card-image">'; // Placeholder si no hay imagen
-
-    const firstTextBlock = article.contentBlocks.find(block => block.type === 'text');
-
-    // Si hay un bloque de texto, lo procesamos como texto plano
-    const content = firstTextBlock ? stripHTML(firstTextBlock.content).substring(0, 80) : 'Sin contenido disponible';
-    const formattedDate = new Date(article.updatedAt).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' });
-
-    const tags = article.tags.map(tag => `<span class="tag">#${tag}</span>`).join(' ');
-
-    // Verificar si es un artículo "nuevo"
-    const isNew = (new Date() - new Date(article.updatedAt)) / (1000 * 3600 * 24) <= 7;
-
-    const articleDiv = $(`
-      <div class="col s12 m6 l3">
-        <div class="card hoverable article-card">
-          <div class="card-image-container">
-            ${imageHTML}
-            ${article.starred ? '<i class="material-icons star-icon">star</i>' : ''}
-            <div class="circle section-color" style="background-color: ${sectionColor};"></div>
-          </div>
-          <div class="card-content">
-            <a href="/article/${article._id}" class="article-title">${article.title}</a>
-            <p class="article-extract">${content}</p>
-            <div class="article-meta">
-              <div class="meta-row">
-                <span class="article-date grey-text italic">${formattedDate}</span>
-                ${isNew ? '<span class="new-badge">NUEVO</span>' : ''}
-              </div>
-              <div class="article-tags">
-                ${tags}
+        const articleCard = $(`
+          <li class="banner">
+            <div class="mixin-pillar-guide-other--banner">
+              <div class="after-load-animate">
+                <div class="cover-image">
+                  <img src="${getFirstImage(article)}" alt="${article.title}">
+                </div>
+                <div class="content">
+                  <div class="row">
+                    <div class="title">
+                      <a class="go-to-detail" href="/articles/${article._id}">
+                        <h2>${article.title}</h2>
+                      </a>
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="excerpt">${getExcerpt(article)}</div>
+                  </div>
+                  <div class="align-bottom">
+                    <div class="corporate--category-and-date">
+                      <div class="category">
+                        <span>${category}</span>
+                        <span>${subcategory}</span>
+                      </div>
+                      <div class="date">${formatDate(article.updatedAt)}</div>
+                    </div>
+                  </div>
+                </div>
+                ${starIcon}
+                ${sectionCircle}
               </div>
             </div>
-          </div>
-        </div>
-      </div>
-    `);
+          </li>
+        `);
 
-    return articleDiv;
+        resolve(articleCard);
+      });
+    });
+  }
+  
+  // Obtener la primera imagen del artículo
+  function getFirstImage(article) {
+    const imageBlock = article.contentBlocks.find(block => block.type === 'image');
+    return imageBlock ? imageBlock.content : 'default-image.png';  // Si no hay imagen, usar una por defecto
+  }
+  
+  function getExcerpt(article) {
+    const textBlock = article.contentBlocks.find(block => block.type === 'text');
+    
+    if (textBlock) {
+      // Crear un div temporal en el DOM y asignar el contenido enriquecido
+      const tempDiv = document.createElement('div');
+      tempDiv.innerHTML = textBlock.content;
+  
+      // Extraer el texto plano del div y limitarlo a 350 caracteres
+      return tempDiv.textContent.slice(0, 200) + '...';
+    }
+  
+    return '';  // En caso de no haber texto
+  }
+  
+  // Obtener el nombre de la categoría
+  function getCategory(article) {
+    return new Promise((resolve, reject) => {
+      if (!article.sectionId) {
+        resolve('Sin categoría');  // Si no hay sectionId, devolvemos "Sin categoría"
+      } else {
+        // Realizamos la llamada AJAX a la API para obtener los datos de la sección
+        $.ajax({
+          url: `/api/sections/${article.sectionId}`,  // Ruta a la API
+          method: 'GET',
+          success: function(sectionData) {
+            // Devolvemos el título de la sección si la llamada fue exitosa
+            resolve(sectionData.title);
+          },
+          error: function(error) {
+            console.error('Error al obtener la categoría:', error);
+            resolve('Sin categoría');  // En caso de error, devolvemos "Sin categoría"
+          }
+        });
+      }
+    });
   }
 
-  function displayStarredArticles(articles) {
-    const starredContainer = $('#starred-articles');
-    starredContainer.empty();
+  function getSubcategory(article) {
+    return new Promise((resolve, reject) => {
+      if (!article.subsectionId) {
+        resolve('');  // Si no hay subsectionId, devolvemos "Sin subcategoría"
+      } else {
+        // Realizamos la llamada AJAX a la API para obtener los datos de la sección
+        $.ajax({
+          url: `/api/sections/${article.sectionId}`,  // Ruta a la API para obtener la sección
+          method: 'GET',
+          success: function(sectionData) {
+            // Verificar que sectionData.subsections exista y sea un arreglo
+            if (sectionData && Array.isArray(sectionData.subsections)) {
+              // Buscar la subcategoría específica por ID
+              const subsection = sectionData.subsections.find(sub => sub.id === article.subsectionId || sub._id === article.subsectionId);
+              
+              if (subsection) {
+                resolve(' | ' + subsection.title);  // Asegúrate de que el campo correcto sea 'title' o ajusta según tu estructura
+              } else {
+                console.warn(`Subcategoría con ID ${article.subsectionId} no encontrada en la sección ${article.sectionId}`);
+                resolve('');  // Si no se encuentra la subcategoría
+              }
+            } else {
+              console.error('La respuesta de la sección no contiene subsecciones válidas.');
+              resolve('');  // Si no hay subsecciones
+            }
+          },
+          error: function(error) {
+            console.error('Error al obtener la subcategoría:', error);
+            resolve('');  // En caso de error, devolvemos "Sin subcategoría"
+          }
+        });
+      }
+    });
+  }
   
-    if (articles.length > 0) {
-      articles.forEach(article => {
-        const articleDiv = createArticleCard(article, article.sectionId.color); // Usa el color de la sección
-        starredContainer.append(articleDiv);
-      });
-    } else {
-      starredContainer.append('<p>No hay artículos destacados en este momento.</p>');
-    }
+  function searchSectionColor(article) {
+    return new Promise((resolve, reject) => {
+      if (!article.sectionId) {
+        resolve('Sin categoría');  // Si no hay sectionId, devolvemos "Sin categoría"
+      } else {
+        // Realizamos la llamada AJAX a la API para obtener los datos de la sección
+        $.ajax({
+          url: `/api/sections/${article.sectionId}`,  // Ruta a la API
+          method: 'GET',
+          success: function(sectionData) {
+            // Devolvemos el título de la sección si la llamada fue exitosa
+            resolve(sectionData.color);
+            console.log(sectionData.color);
+          },
+          error: function(error) {
+            console.error('Error al obtener la categoría:', error);
+            resolve('Sin categoría');  // En caso de error, devolvemos "Sin categoría"
+          }
+        });
+      }
+    });
+  }
+
+  // Formatear la fecha
+  function formatDate(date) {
+    const options = { year: 'numeric', month: 'long', day: 'numeric' };
+    return new Date(date).toLocaleDateString('es-ES', options);
   }
 
   // Inicializar la carga de secciones y artículos destacados
-  loadSections();
+  loadArticles();
 });
