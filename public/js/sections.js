@@ -58,7 +58,7 @@ function loadSections(callback) {
                                                 </div>
                                                 <div class="subsection-article-icons-right" style="display: flex; align-items: center">
                                                     <a href="#!" class="secondary-content" onclick="toggleStarArticle('${article._id}')" style="vertical-align: middle;">
-                                                        <i class="material-icons" style="color: gray;">${article.starred ? 'star' : 'star_border'}</i>
+                                                        <i class="material-icons" ${article.starred ? 'style="color: gold;"' : 'style="color: gray;"'}>${article.starred ? 'star' : 'star_border'}</i>
                                                     </a>
                                                     <a href="#!" class="secondary-content" onclick="editArticle('${article._id}')" style="vertical-align: middle;">
                                                         <i class="material-icons" style="color: gray;">edit</i>
@@ -82,7 +82,7 @@ function loadSections(callback) {
                                         </div>
                                         <div class="section-article-icons-right" style="display: flex; align-items: center;">
                                             <a href="#!" class="secondary-content" onclick="toggleStarArticle('${article._id}')" style="vertical-align: middle;">
-                                                <i class="material-icons">${article.starred ? 'star' : 'star_border'}</i>
+                                                <i class="material-icons" ${article.starred ? 'style="color: gold;"' : ''}>${article.starred ? 'star' : 'star_border'}</i>
                                             </a>
                                             <a href="#!" class="secondary-content" onclick="editArticle('${article._id}')" style="vertical-align: middle;">
                                                 <i class="material-icons">edit</i>

@@ -201,18 +201,84 @@ exports.reorderArticles = async (req, res) => {
     }
 };
 
-// Buscar artículos por palabra clave o etiqueta
+// Buscar artículos por palabra clave, sección o subsección
 exports.searchArticles = async (req, res) => {
     try {
-        const { query } = req.query;  // La palabra clave que se busca
-        const articles = await Article.find({
-            $or: [
-                { title: { $regex: query, $options: 'i' } },  // Buscar en el título (insensible a mayúsculas)
-                { 'tags.name': { $regex: query, $options: 'i' } }  // Buscar en las etiquetas
-            ]
+        const { query, sectionId, subsectionId } = req.query;
+
+        // Dividir la consulta en palabras individuales
+        const keywords = query ? query.split(' ').filter(Boolean) : [];
+
+        // Construir el filtro de búsqueda dinámicamente
+        const searchFilter = [];
+
+        // Para cada palabra clave, buscamos coincidencias en los campos título, etiquetas y bloques de contenido
+        keywords.forEach(keyword => {
+            const regex = new RegExp(keyword, 'i');  // Expresión regular insensible a mayúsculas
+            searchFilter.push({
+                $or: [
+                    { title: { $regex: regex } },  // Buscar en el título
+                    { tags: { $regex: regex } },   // Buscar en las etiquetas
+                    {
+                        contentBlocks: {
+                            $elemMatch: {
+                                type: 'text',  // Solo buscar en bloques de texto
+                                content: { $regex: regex }
+                            }
+                        }
+                    }
+                ]
+            });
         });
 
-        res.status(200).json(articles);
+        // Filtrar por etiqueta si se proporciona
+        if (tag) {
+            searchFilter.tags = { $regex: tag, $options: 'i' };  // Búsqueda insensible a mayúsculas en las etiquetas
+        }
+
+        // Filtro de sección y subsección si existen
+        if (sectionId && mongoose.Types.ObjectId.isValid(sectionId)) {
+            searchFilter.push({ sectionId });
+        }
+        if (subsectionId && mongoose.Types.ObjectId.isValid(subsectionId)) {
+            searchFilter.push({ subsectionId });
+        }
+
+        // Buscar los artículos que coincidan con el filtro
+        const articles = await Article.find({
+            $and: searchFilter  // Utilizar $and para asegurarse de que todas las palabras se busquen
+        });
+
+        // Calcular relevancia de cada artículo
+        const articlesWithRelevance = articles.map(article => {
+            let relevance = 0;
+
+            // Calcular relevancia en el título
+            keywords.forEach(keyword => {
+                const regex = new RegExp(keyword, 'i');
+                if (regex.test(article.title)) {
+                    relevance += 10;  // Mayor peso en el título
+                }
+                if (article.tags.some(tag => regex.test(tag))) {
+                    relevance += 5;  // Peso medio para las etiquetas
+                }
+
+                // Buscar coincidencias en los bloques de contenido de texto
+                article.contentBlocks.forEach(block => {
+                    if (block.type === 'text' && regex.test(block.content)) {
+                        relevance += 3;  // Menor peso en bloques de contenido
+                    }
+                });
+            });
+
+            return { ...article._doc, relevance };  // Retornar el artículo con su relevancia
+        });
+
+        // Ordenar los artículos por relevancia (de mayor a menor)
+        articlesWithRelevance.sort((a, b) => b.relevance - a.relevance);
+
+        // Retornar los artículos ordenados por relevancia
+        res.status(200).json(articlesWithRelevance);
     } catch (error) {
         console.error('Error al buscar artículos:', error);
         res.status(500).json({ error: 'Error al buscar artículos.' });

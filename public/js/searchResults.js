@@ -1,57 +1,41 @@
 $(document).ready(function() {
-  // Función para cargar las secciones y subsecciones con sus artículos
-  function loadArticles() {
+  const urlParams = new URLSearchParams(window.location.search);
+  const query = urlParams.get('query') || '';
+  const sectionId = urlParams.get('sectionId');
+  const subsectionId = urlParams.get('subsectionId');
   
-    $.ajax({
-      url: '/api/sections',  // Obtener los artículos (ahora tratamos todos juntos)
-      method: 'GET',
-      success: function(sections) {
-  
-        const articlesList = $('#articles-list');  // Un contenedor para todos los artículos
-        const starredArticles = [];  // Almacena los artículos destacados
-  
-        sections.forEach(section => {
-          // Añadir artículos de la sección principal
-          section.articles.forEach(article => {
-            if (article.starred) {
-              starredArticles.push(article);  // Almacenar artículos destacados
-            } else {
-              createArticleCard(article, section.color).then(articleCard => {
-                articlesList.append(articleCard);  // Añadir los normales
-              });
-            }
-          });
-  
-          // Añadir artículos de las subsecciones
-          section.subsections.forEach(subsection => {
-            subsection.articles.forEach(article => {
-              if (article.starred) {
-                starredArticles.push(article);  // Almacenar artículos destacados
-              } else {
-                createArticleCard(article, section.color).then(articleCard => {
-                  articlesList.append(articleCard);  // Añadir los normales
-                });
-              }
+  // Llamada a la API para buscar artículos
+  $.ajax({
+    url: '/api/articles/search',
+    method: 'GET',
+    data: {
+        query,
+        sectionId,
+        subsectionId
+    },
+    success: function(articles) {
+        const articlesList = $('#search-results');
+        
+        // Usamos Promise.all para obtener el color de la sección de cada artículo
+        const articlePromises = articles.map(article => {
+            return searchSectionColor(article).then(color => {
+                return createArticleCard(article, color);  // Crear la tarjeta con el color obtenido
             });
-          });
         });
-  
-        // Mostrar primero los artículos destacados
-        starredArticles.forEach(article => {
-          searchSectionColor(article).then(color => {
-            createArticleCard(article, color, true).then(articleCard => {
-              articlesList.prepend(articleCard);  // Mostrar destacados al principio
+
+        // Cuando todas las promesas se resuelvan, añadimos las tarjetas al DOM
+        Promise.all(articlePromises).then(articleCards => {
+            articleCards.forEach(articleCard => {
+                articlesList.append(articleCard);  // Añadir cada tarjeta al contenedor
             });
-          }).catch(error => {
-            console.error('Error al obtener el color:', error);
-          });          
+        }).catch(error => {
+            console.error('Error al procesar los artículos:', error);
         });
-      },
-      error: function(error) {
-        console.error('Error al cargar los artículos:', error);
-      }
-    });
-  }
+    },
+    error: function(error) {
+        console.error('Error al buscar artículos:', error);
+    }
+  });
   
   // Crear la tarjeta del artículo (ahora usa Promesa para obtener la categoría)
   function createArticleCard(article, color, isStarred = false) {
@@ -67,9 +51,6 @@ $(document).ready(function() {
         const subcategoryLink = subcategory !== 'Sin subcategoría' ? 
             `<a href="#" class="category-link" data-section-id="${article.sectionId}" data-subsection-id="${article.subsectionId}">${subcategory}</a>` 
             : '';
-        
-        // Crear la tarjeta del artículo
-        const tagsBadges = createTagsBadges(article.tags);
 
         const articleCard = $(`
           <li class="banner">
@@ -96,7 +77,6 @@ $(document).ready(function() {
                         <span>${subcategoryLink}</span>
                       </div>
                       <div class="date">${formatDate(article.updatedAt)}</div>
-                      <div class="tags">${tagsBadges}</div>
                     </div>
                   </div>
                 </div>
@@ -110,12 +90,6 @@ $(document).ready(function() {
         resolve(articleCard);
       });
     });
-  }
-
-  // Crear píldoras con las etiquetas
-  function createTagsBadges(tags) {
-    console.log(`creando píldoras con las etiquetas ${tags}`);
-    return tags.map(tag => `<a href="/search?tag=${encodeURIComponent(tag)}" class="badge grey lighten-2">#${tag}</a>`).join(' ');
   }
   
   // Obtener la primera imagen del artículo
@@ -238,9 +212,6 @@ $(document).ready(function() {
       searchArticles({ query });  // Llamar a la función para redirigir a la búsqueda
     }
   });
-
-  // Inicializar la carga de secciones y artículos destacados
-  loadArticles();
 });
 
 // Función para redirigir a la búsqueda

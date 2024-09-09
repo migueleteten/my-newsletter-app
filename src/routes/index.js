@@ -83,6 +83,11 @@ router.get('/user/index', (req, res) => {
     res.sendFile(path.join(__dirname, '../views/user/index.html'));
 });
 
+// Ruta para ver resultados de búsqueda
+router.get('/user/search', (req, res) => {
+    res.sendFile(path.join(__dirname, '../views/user/search.html'));
+});
+
 // Rutas para gestionar secciones (API)
 router.get('/api/sections', sectionController.listSections);
 router.post('/api/sections', ensureAdmin, sectionController.createSection);
@@ -101,6 +106,9 @@ router.delete('/api/sections/:sectionId/subsections/:subsectionId', ensureAdmin,
 router.get('/api/articles/pending', articleController.getPendingArticles);
 router.post('/api/articles/publish', ensureAdmin, articleController.publishArticles);  // Publicar artículos seleccionados
 
+// Ruta para búsquedas
+router.get('/api/articles/search', articleController.searchArticles);
+
 // Rutas para gestionar artículos (API)
 router.get('/api/sections/:sectionId/articles', articleController.listArticlesBySection);  // Listar todos los artículos de una sección
 router.post('/api/sections/:sectionId/articles', ensureAdmin, articleController.createArticle);  // Crear artículo
@@ -112,5 +120,6 @@ router.post('/api/sections/:sectionId/articles/reorder', ensureAdmin, articleCon
 
 // Ruta para obtener artículos por IDs
 router.post('/api/articles', articleController.getArticlesByIds);
+
 
 module.exports = router;
