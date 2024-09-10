@@ -437,7 +437,7 @@ strong {
 }
 
 .corporate--category-and-date {
-    line-height: 2.3rem;
+    line-height: 1.7rem;
     padding-bottom: 7px;
     text-align: left;
 }
@@ -460,6 +460,25 @@ strong {
     -webkit-font-smoothing: auto;
     vertical-align: top;
     font-size: 0.8rem;
+    margin-bottom: 7px;
+}
+
+.corporate--category-and-date .tags {
+    font-family: "Montserrat";
+    font-weight: 400;
+    -webkit-font-smoothing: auto;
+    padding-right: 2px;
+    color: #82888c;
+    display: inline;
+    font-size: 0.8rem;
+}
+
+a.tag-link {
+    margin-right: 7px;
+    background-color: #ff7310;
+    color: white;
+    padding: 3px 7px;
+    border-radius: 100px;
 }
 
 .title a {

@@ -55,9 +55,8 @@ $(document).ready(function() {
   
   // Crear la tarjeta del artículo (ahora usa Promesa para obtener la categoría)
   function createArticleCard(article, color, isStarred = false) {
-    console.log(`color encontrado:${color}`);
     return new Promise((resolve) => {
-      Promise.all([getCategory(article), getSubcategory(article)]).then(([category, subcategory]) => {
+      Promise.all([getCategory(article), getSubcategory(article), createTagsBadges(article.tags)]).then(([category, subcategory, tagsBadges]) => {
         
         const starIcon = isStarred ? '<i class="material-icons star-icon">star</i>' : '';  // Añadir la estrellita si es destacado
         const sectionCircle = `<div class="circle" style="background-color: ${color};"></div>`;  // Círculo del color de la sección
@@ -68,9 +67,6 @@ $(document).ready(function() {
             `<a href="#" class="category-link" data-section-id="${article.sectionId}" data-subsection-id="${article.subsectionId}">${subcategory}</a>` 
             : '';
         
-        // Crear la tarjeta del artículo
-        const tagsBadges = createTagsBadges(article.tags);
-
         const articleCard = $(`
           <li class="banner">
             <div class="mixin-pillar-guide-other--banner">
@@ -96,7 +92,7 @@ $(document).ready(function() {
                         <span>${subcategoryLink}</span>
                       </div>
                       <div class="date">${formatDate(article.updatedAt)}</div>
-                      <div class="tags">${tagsBadges}</div>
+                      ${tagsBadges ? `<div class="tags">${tagsBadges}</div>` : ''}
                     </div>
                   </div>
                 </div>
@@ -112,10 +108,22 @@ $(document).ready(function() {
     });
   }
 
-  // Crear píldoras con las etiquetas
+  // Crear enlaces para las etiquetas, filtrando etiquetas vacías
   function createTagsBadges(tags) {
-    console.log(`creando píldoras con las etiquetas ${tags}`);
-    return tags.map(tag => `<a href="/search?tag=${encodeURIComponent(tag)}" class="badge grey lighten-2">#${tag}</a>`).join(' ');
+    // Verificar si 'tags' es un array y tiene al menos una etiqueta no vacía
+    if (Array.isArray(tags) && tags.length > 0) {
+      // Filtrar etiquetas vacías y generar los enlaces solo para etiquetas válidas
+      const validTags = tags.filter(tag => tag.trim() !== '');
+      
+      // Verificar si hay etiquetas válidas después del filtrado
+      if (validTags.length > 0) {
+          return validTags.map(tag => {
+              return `<a href="#" class="tag-link" data-tag="${encodeURIComponent(tag)}">#${tag}</a>`;
+          }).join(' ');
+      }
+    }
+    console.log('Sin etiquetas válidas en este artículo');
+    return null;  // No retornar nada si no hay etiquetas válidas
   }
   
   // Obtener la primera imagen del artículo
@@ -178,7 +186,7 @@ $(document).ready(function() {
               const subsection = sectionData.subsections.find(sub => sub.id === article.subsectionId || sub._id === article.subsectionId);
               
               if (subsection) {
-                resolve(' | ' + subsection.title);  // Asegúrate de que el campo correcto sea 'title' o ajusta según tu estructura
+                resolve(' > ' + subsection.title);  // Asegúrate de que el campo correcto sea 'title' o ajusta según tu estructura
               } else {
                 console.warn(`Subcategoría con ID ${article.subsectionId} no encontrada en la sección ${article.sectionId}`);
                 resolve('');  // Si no se encuentra la subcategoría
@@ -246,15 +254,17 @@ $(document).ready(function() {
 // Función para redirigir a la búsqueda
 function searchArticles(params) {
   const queryString = $.param(params);  // Convertir los parámetros a query string
+  console.log('Query string generado:', queryString);  // Verificar el string generado
   window.location.href = `/user/search?${queryString}`;  // Redirigir a la página de búsqueda
 }
 
 // Asignar eventos a los enlaces de categoría y subcategoría
-$(document).on('click', '.category-link', function(e) {
+$(document).on('click', '.category-link, .tag-link', function(e) {
   e.preventDefault();
   
   const sectionId = $(this).data('sectionId');
   const subsectionId = $(this).data('subsectionId');
+  const tag = $(this).data('tag');
   
   const params = {};
   if (sectionId) {
@@ -263,6 +273,14 @@ $(document).on('click', '.category-link', function(e) {
   if (subsectionId) {
       params.subsectionId = subsectionId;
   }
+
+  // Verificar si es un enlace de etiqueta
+  if (tag) {
+    params.tag = params.tag = encodeURIComponent(tag);;
+  }
+
+  // Verificar qué parámetros se envían antes de redirigir
+  console.log('Parámetros enviados:', params);
   
   searchArticles(params);  // Redirigir a la búsqueda
 });

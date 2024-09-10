@@ -201,77 +201,94 @@ exports.reorderArticles = async (req, res) => {
     }
 };
 
-// Buscar artículos por palabra clave, sección o subsección
+// Buscar artículos por palabra clave, sección, subsección o etiqueta
 exports.searchArticles = async (req, res) => {
     try {
-        const { query, sectionId, subsectionId } = req.query;
+        // Imprimir el objeto completo de la consulta para depuración
 
-        // Dividir la consulta en palabras individuales
-        const keywords = query ? query.split(' ').filter(Boolean) : [];
+        const { query, sectionId, subsectionId, tag } = req.query;
+
+        console.log('Parámetros de la solicitud (req.query):', req.query);
+        console.log('Valor del parámetro tag:', tag);
+
+        // Verificar que el parámetro `tag` no sea undefined
+        console.log('Valor del parámetro tag:', tag);
 
         // Construir el filtro de búsqueda dinámicamente
-        const searchFilter = [];
+        const searchFilter = {};
 
-        // Para cada palabra clave, buscamos coincidencias en los campos título, etiquetas y bloques de contenido
-        keywords.forEach(keyword => {
-            const regex = new RegExp(keyword, 'i');  // Expresión regular insensible a mayúsculas
-            searchFilter.push({
-                $or: [
-                    { title: { $regex: regex } },  // Buscar en el título
-                    { tags: { $regex: regex } },   // Buscar en las etiquetas
-                    {
-                        contentBlocks: {
-                            $elemMatch: {
-                                type: 'text',  // Solo buscar en bloques de texto
-                                content: { $regex: regex }
-                            }
+        // Filtrar por etiqueta si se proporciona y no está vacío o undefined
+        if (tag && tag !== 'undefined' && tag.trim() !== '') {
+            searchFilter.tags = { $regex: new RegExp(tag, 'i') };  // Búsqueda insensible a mayúsculas en las etiquetas
+            console.log('Filtro por tag:', searchFilter);  // Verificar que el filtro de etiqueta se está aplicando
+        }
+
+        // Filtrar por palabra clave si se proporciona
+        if (query) {
+            const keywords = query.split(' ').filter(Boolean).map(keyword => new RegExp(keyword, 'i'));
+            searchFilter.$or = [
+                { title: { $in: keywords } },  // Buscar coincidencias en el título
+                { tags: { $in: keywords } },   // Buscar coincidencias en las etiquetas
+                {
+                    contentBlocks: {
+                        $elemMatch: {
+                            type: 'text',  // Solo buscar en bloques de texto
+                            content: { $in: keywords }
                         }
                     }
-                ]
-            });
-        });
-
-        // Filtrar por etiqueta si se proporciona
-        if (tag) {
-            searchFilter.tags = { $regex: tag, $options: 'i' };  // Búsqueda insensible a mayúsculas en las etiquetas
+                }
+            ];
+            console.log('Filtro por query:', searchFilter);  // Verificar el filtro de query
         }
 
-        // Filtro de sección y subsección si existen
+        // Filtro de sección y subsección si existen y son válidos
         if (sectionId && mongoose.Types.ObjectId.isValid(sectionId)) {
-            searchFilter.push({ sectionId });
+            searchFilter.sectionId = sectionId;
         }
         if (subsectionId && mongoose.Types.ObjectId.isValid(subsectionId)) {
-            searchFilter.push({ subsectionId });
+            searchFilter.subsectionId = subsectionId;
         }
 
-        // Buscar los artículos que coincidan con el filtro
-        const articles = await Article.find({
-            $and: searchFilter  // Utilizar $and para asegurarse de que todas las palabras se busquen
-        });
+        // Verificar el filtro final que se enviará a la base de datos
+        console.log('Filtro final:', searchFilter);
+
+        // Realizar la búsqueda con las condiciones acumuladas
+        const articles = await Article.find(searchFilter);
+
+        // Verificar cuántos artículos se han encontrado con el filtro
+        console.log(`Artículos encontrados: ${articles.length}`);
 
         // Calcular relevancia de cada artículo
         const articlesWithRelevance = articles.map(article => {
             let relevance = 0;
 
-            // Calcular relevancia en el título
-            keywords.forEach(keyword => {
-                const regex = new RegExp(keyword, 'i');
-                if (regex.test(article.title)) {
-                    relevance += 10;  // Mayor peso en el título
-                }
-                if (article.tags.some(tag => regex.test(tag))) {
-                    relevance += 5;  // Peso medio para las etiquetas
-                }
+            // Si se buscan palabras clave, calcular relevancia
+            if (query) {
+                const keywords = query.split(' ').filter(Boolean);
+                keywords.forEach(keyword => {
+                    const regex = new RegExp(keyword, 'i');
 
-                // Buscar coincidencias en los bloques de contenido de texto
-                article.contentBlocks.forEach(block => {
-                    if (block.type === 'text' && regex.test(block.content)) {
-                        relevance += 3;  // Menor peso en bloques de contenido
+                    // Mayor peso en coincidencias en el título
+                    if (regex.test(article.title)) {
+                        relevance += 10;
                     }
-                });
-            });
 
-            return { ...article._doc, relevance };  // Retornar el artículo con su relevancia
+                    // Peso medio en coincidencias en las etiquetas
+                    if (article.tags.some(tag => regex.test(tag))) {
+                        relevance += 5;
+                    }
+
+                    // Menor peso en coincidencias en los bloques de contenido de texto
+                    article.contentBlocks.forEach(block => {
+                        if (block.type === 'text' && regex.test(block.content)) {
+                            relevance += 3;
+                        }
+                    });
+                });
+            }
+
+            // Retornar el artículo con su relevancia
+            return { ...article._doc, relevance };
         });
 
         // Ordenar los artículos por relevancia (de mayor a menor)
