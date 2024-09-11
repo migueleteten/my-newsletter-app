@@ -3,6 +3,7 @@ $(document).ready(function() {
   const query = urlParams.get('query') || '';
   const sectionId = urlParams.get('sectionId');
   const subsectionId = urlParams.get('subsectionId');
+  const tag = urlParams.get('tag');
   
   // Llamada a la API para buscar artículos
   $.ajax({
@@ -11,7 +12,8 @@ $(document).ready(function() {
     data: {
         query,
         sectionId,
-        subsectionId
+        subsectionId,
+        tag
     },
     success: function(articles) {
         const articlesList = $('#search-results');
@@ -43,7 +45,8 @@ $(document).ready(function() {
       Promise.all([getCategory(article), getSubcategory(article), createTagsBadges(article.tags)]).then(([category, subcategory, tagsBadges]) => {
         
         const starIcon = isStarred ? '<i class="material-icons star-icon">star</i>' : '';  // Añadir la estrellita si es destacado
-        const sectionCircle = `<div class="circle" style="background-color: ${color};"></div>`;  // Círculo del color de la sección
+        const sectionCircle = `<div class="circle" style="background-color: ${color};"></div>
+                              <div class="circle" style="background-color: ${color};box-shadow: inset -1px 1px 3px -2px white;"></div>`;  // Círculo del color de la sección
 
         // Crear enlaces para la categoría y subcategoría
         const categoryLink = `<a href="#" class="category-link" data-section-id="${article.sectionId}">${category}</a>`;
@@ -55,9 +58,7 @@ $(document).ready(function() {
           <li class="banner">
             <div class="mixin-pillar-guide-other--banner">
               <div class="after-load-animate">
-                <div class="cover-image">
-                  <img src="${getFirstImage(article)}" alt="${article.title}">
-                </div>
+                <div class="cover-image"></div>
                 <div class="content">
                   <div class="row">
                     <div class="title">
@@ -87,6 +88,9 @@ $(document).ready(function() {
           </li>
         `);
 
+        // Insertar la imagen en el contenedor de la tarjeta
+        articleCard.find('.cover-image').append(createImageElement(article));
+
         resolve(articleCard);
       });
     });
@@ -102,8 +106,9 @@ $(document).ready(function() {
       // Verificar si hay etiquetas válidas después del filtrado
       if (validTags.length > 0) {
           return validTags.map(tag => {
-              return `<a href="#" class="tag-link" data-tag="${encodeURIComponent(tag)}">#${tag}</a>`;
-          }).join(' ');
+            console.log(encodeURIComponent(tag));
+            return `<a href="#" class="tag-link" data-tag="${tag}">#${tag}</a>`;
+          }).join(' ');          
       }
     }
     return null;  // No retornar nada si no hay etiquetas válidas
@@ -112,7 +117,27 @@ $(document).ready(function() {
   // Obtener la primera imagen del artículo
   function getFirstImage(article) {
     const imageBlock = article.contentBlocks.find(block => block.type === 'image');
-    return imageBlock ? imageBlock.content : 'default-image.png';  // Si no hay imagen, usar una por defecto
+    return imageBlock ? imageBlock.content : '/images/default-image.png';  // Si no hay imagen, usar una por defecto
+  }
+
+  // Crear la imagen con estilo dinámico
+  function createImageElement(article) {
+    const imageUrl = getFirstImage(article);
+
+    // Crear un elemento de imagen
+    const imgElement = document.createElement('img');
+    imgElement.src = imageUrl;
+    imgElement.alt = article.title;
+
+    // Asignar estilo dependiendo de la imagen (si es la default-image.png usar "contain", de lo contrario "cover")
+    if (imageUrl.includes('default-image.png')) {
+      imgElement.style.objectFit = 'contain';
+      imgElement.style.opacity = '25%';
+    } else {
+      imgElement.style.objectFit = 'cover';
+    }
+
+    return imgElement;
   }
   
   function getExcerpt(article) {
@@ -256,7 +281,7 @@ $(document).on('click', '.category-link, .tag-link', function(e) {
 
   // Verificar si es un enlace de etiqueta
   if (tag) {
-    params.tag = params.tag = encodeURIComponent(tag);
+    params.tag = tag;
   }
 
   // Verificar qué parámetros se envían antes de redirigir

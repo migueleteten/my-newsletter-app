@@ -211,16 +211,12 @@ exports.searchArticles = async (req, res) => {
         console.log('Parámetros de la solicitud (req.query):', req.query);
         console.log('Valor del parámetro tag:', tag);
 
-        // Verificar que el parámetro `tag` no sea undefined
-        console.log('Valor del parámetro tag:', tag);
-
         // Construir el filtro de búsqueda dinámicamente
         const searchFilter = {};
 
-        // Filtrar por etiqueta si se proporciona y no está vacío o undefined
-        if (tag && tag !== 'undefined' && tag.trim() !== '') {
-            searchFilter.tags = { $regex: new RegExp(tag, 'i') };  // Búsqueda insensible a mayúsculas en las etiquetas
-            console.log('Filtro por tag:', searchFilter);  // Verificar que el filtro de etiqueta se está aplicando
+        // Filtrar por etiqueta si se proporciona y decodificarla correctamente
+        if (tag) {
+            searchFilter.tags = { $regex: new RegExp(decodeURIComponent(tag), 'i') }; // Usar el operador de expresión regular
         }
 
         // Filtrar por palabra clave si se proporciona
