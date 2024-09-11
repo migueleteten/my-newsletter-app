@@ -62,7 +62,7 @@ $(document).ready(function() {
                 <div class="content">
                   <div class="row">
                     <div class="title">
-                      <a class="go-to-detail" href="/articles/${article._id}">
+                      <a class="go-to-detail" href="/user/article/${article._id}">
                         <h2>${article.title}</h2>
                       </a>
                     </div>

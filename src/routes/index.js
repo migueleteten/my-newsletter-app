@@ -88,6 +88,11 @@ router.get('/user/search', (req, res) => {
     res.sendFile(path.join(__dirname, '../views/user/search.html'));
 });
 
+// Ruta para ver un artículo específico (por su ID)
+router.get('/user/article/:articleId', (req, res) => {
+    res.sendFile(path.join(__dirname, '../views/user/article.html'));
+});
+
 // Rutas para gestionar secciones (API)
 router.get('/api/sections', sectionController.listSections);
 router.post('/api/sections', ensureAdmin, sectionController.createSection);
@@ -120,6 +125,10 @@ router.post('/api/sections/:sectionId/articles/reorder', ensureAdmin, articleCon
 
 // Ruta para obtener artículos por IDs
 router.post('/api/articles', articleController.getArticlesByIds);
+
+// Rutas para los comentarios de un artículo
+router.get('/api/articles/:articleId/comments', articleController.getComments);
+router.post('/api/articles/:articleId/comments', ensureAuthenticated, articleController.addComment);
 
 
 module.exports = router;

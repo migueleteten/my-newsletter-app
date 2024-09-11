@@ -1,9 +1,15 @@
 $(document).ready(function () {
-    const articleId = "66df14352680a81beabd6695";  // ID del artículo actual
+    // Obtener el articleId desde la URL
+    const articleId = window.location.pathname.split('/').pop();  // Extrae el último segmento de la URL
     
     // Cargar el contenido del artículo
     $.get(`/api/articles/${articleId}`, function (article) {
       const articleContent = $("#article-content");
+
+      const title = article.title;
+
+      articleContent.append(`<h1 id="article-title" style="color: rgba(0,0,0,0.87) !important; margin-bottom: 50px !important;">${title}</h1>`);
+
       const blocks = article.contentBlocks;
       
       blocks.forEach((block, index) => {

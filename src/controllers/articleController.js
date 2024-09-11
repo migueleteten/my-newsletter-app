@@ -1,6 +1,7 @@
 const Section = require('../models/sectionModel');  // Asegúrate de importar el modelo Section
 const Article = require('../models/articleModel');  // Importar el modelo Article
 const mongoose = require('mongoose');  // Asegúrate de importar mongoose
+const Comment = require('../models/commentModel');
 
 // Crear un nuevo artículo
 exports.createArticle = async (req, res) => {
@@ -201,11 +202,14 @@ exports.reorderArticles = async (req, res) => {
     }
 };
 
+// Función para normalizar texto, eliminando tildes
+function normalizeString(str) {
+    return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "");  // Quita tildes
+}
+
 // Buscar artículos por palabra clave, sección, subsección o etiqueta
 exports.searchArticles = async (req, res) => {
     try {
-        // Imprimir el objeto completo de la consulta para depuración
-
         const { query, sectionId, subsectionId, tag } = req.query;
 
         console.log('Parámetros de la solicitud (req.query):', req.query);
@@ -216,25 +220,19 @@ exports.searchArticles = async (req, res) => {
 
         // Filtrar por etiqueta si se proporciona y decodificarla correctamente
         if (tag) {
-            searchFilter.tags = { $regex: new RegExp(decodeURIComponent(tag), 'i') }; // Usar el operador de expresión regular
+            const normalizedTag = normalizeString(decodeURIComponent(tag));
+            searchFilter.tags = { $regex: new RegExp(normalizedTag, 'i') };  // Búsqueda insensible a tildes en las etiquetas
         }
 
         // Filtrar por palabra clave si se proporciona
         if (query) {
-            const keywords = query.split(' ').filter(Boolean).map(keyword => new RegExp(keyword, 'i'));
-            searchFilter.$or = [
-                { title: { $in: keywords } },  // Buscar coincidencias en el título
-                { tags: { $in: keywords } },   // Buscar coincidencias en las etiquetas
-                {
-                    contentBlocks: {
-                        $elemMatch: {
-                            type: 'text',  // Solo buscar en bloques de texto
-                            content: { $in: keywords }
-                        }
-                    }
-                }
-            ];
-            console.log('Filtro por query:', searchFilter);  // Verificar el filtro de query
+            const normalizedQuery = normalizeString(query);  // Normalizar para quitar tildes
+            console.log('Query normalizado:', normalizedQuery);
+
+            // Utilizar $text para realizar la búsqueda en los campos indexados
+            searchFilter.$text = { $search: normalizedQuery };
+
+            console.log('Filtro por query (usando $text):', JSON.stringify(searchFilter, null, 2));  // Verificar el filtro de query
         }
 
         // Filtro de sección y subsección si existen y son válidos
@@ -246,7 +244,7 @@ exports.searchArticles = async (req, res) => {
         }
 
         // Verificar el filtro final que se enviará a la base de datos
-        console.log('Filtro final:', searchFilter);
+        console.log('Filtro final:', JSON.stringify(searchFilter, null, 2));
 
         // Realizar la búsqueda con las condiciones acumuladas
         const articles = await Article.find(searchFilter);
@@ -258,25 +256,31 @@ exports.searchArticles = async (req, res) => {
         const articlesWithRelevance = articles.map(article => {
             let relevance = 0;
 
+            console.log('Procesando artículo:', article.title);
+
             // Si se buscan palabras clave, calcular relevancia
             if (query) {
                 const keywords = query.split(' ').filter(Boolean);
                 keywords.forEach(keyword => {
-                    const regex = new RegExp(keyword, 'i');
+                    const regex = new RegExp(normalizeString(keyword), 'i');
+                    console.log('Comparando con regex:', regex);
 
                     // Mayor peso en coincidencias en el título
-                    if (regex.test(article.title)) {
+                    if (regex.test(normalizeString(article.title))) {
+                        console.log(`Coincidencia encontrada en el título: ${article.title}`);
                         relevance += 10;
                     }
 
                     // Peso medio en coincidencias en las etiquetas
-                    if (article.tags.some(tag => regex.test(tag))) {
+                    if (article.tags.some(tag => regex.test(normalizeString(tag)))) {
+                        console.log(`Coincidencia encontrada en las etiquetas: ${article.tags}`);
                         relevance += 5;
                     }
 
                     // Menor peso en coincidencias en los bloques de contenido de texto
                     article.contentBlocks.forEach(block => {
-                        if (block.type === 'text' && regex.test(block.content)) {
+                        if (block.type === 'text' && regex.test(normalizeString(block.content))) {
+                            console.log(`Coincidencia encontrada en el contenido: ${block.content}`);
                             relevance += 3;
                         }
                     });
@@ -349,4 +353,34 @@ exports.getPendingArticles = async (req, res) => {
         console.error('Error al obtener los artículos pendientes:', error);
         res.status(500).json({ error: 'Error al obtener los artículos pendientes.' });
     }
+};
+
+// Agregar un comentario a un artículo
+exports.addComment = async (req, res) => {
+  try {
+    const { content } = req.body;
+    const articleId = req.params.articleId;
+
+    const newComment = await Comment.create({
+      content,
+      articleId,
+      userId: req.user._id,
+      userAvatar: req.user.avatar,  // Obtener el avatar de Google
+      username: req.user.displayName  // Obtener el nombre del usuario de Google
+    });
+
+    res.status(201).json(newComment);
+  } catch (error) {
+    res.status(500).json({ error: 'Error al agregar comentario.' });
+  }
+};
+
+// Obtener los comentarios de un artículo
+exports.getComments = async (req, res) => {
+  try {
+    const comments = await Comment.find({ articleId: req.params.articleId }).sort({ createdAt: -1 });
+    res.status(200).json(comments);
+  } catch (error) {
+    res.status(500).json({ error: 'Error al obtener comentarios.' });
+  }
 };
