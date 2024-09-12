@@ -9,8 +9,10 @@ const path = require('path');
 function ensureAuthenticated(req, res, next) {
     if (req.isAuthenticated()) {
         return next();
+    } else {
+        console.log('No autenticado');
+        res.redirect('/');  // Redirigir a la página de inicio de sesión
     }
-    res.redirect('/');
 }
 
 // Middleware para verificar si el usuario es administrador
@@ -79,17 +81,17 @@ router.get('/admin/publications', ensureAdmin, (req, res) => {
 });
 
 // Ruta para ver artículos
-router.get('/user/index', (req, res) => {
+router.get('/user/index', ensureAuthenticated, (req, res) => {
     res.sendFile(path.join(__dirname, '../views/user/index.html'));
 });
 
 // Ruta para ver resultados de búsqueda
-router.get('/user/search', (req, res) => {
+router.get('/user/search', ensureAuthenticated, (req, res) => {
     res.sendFile(path.join(__dirname, '../views/user/search.html'));
 });
 
 // Ruta para ver un artículo específico (por su ID)
-router.get('/user/article/:articleId', (req, res) => {
+router.get('/user/article/:articleId', ensureAuthenticated, (req, res) => {
     res.sendFile(path.join(__dirname, '../views/user/article.html'));
 });
 

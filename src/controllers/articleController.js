@@ -361,16 +361,27 @@ exports.addComment = async (req, res) => {
     const { content } = req.body;
     const articleId = req.params.articleId;
 
+    // Validar que el usuario esté autenticado
+    if (!req.isAuthenticated()) {
+        return res.status(401).json({ error: 'Usuario no autenticado' });
+    }
+
+    // Verificar si el usuario tiene un avatar
+    const userAvatar = req.user.photos && req.user.photos.length > 0 ? req.user.photos[0].value : null;
+    if (!userAvatar) {
+        return res.status(400).json({ error: 'No se pudo obtener el avatar del usuario.' });
+    }
+
     const newComment = await Comment.create({
       content,
       articleId,
-      userId: req.user._id,
-      userAvatar: req.user.avatar,  // Obtener el avatar de Google
+      userAvatar,  // Obtener el avatar de Google
       username: req.user.displayName  // Obtener el nombre del usuario de Google
     });
 
     res.status(201).json(newComment);
   } catch (error) {
+    console.error('Error al crear el comentario', error);
     res.status(500).json({ error: 'Error al agregar comentario.' });
   }
 };
@@ -378,9 +389,17 @@ exports.addComment = async (req, res) => {
 // Obtener los comentarios de un artículo
 exports.getComments = async (req, res) => {
   try {
-    const comments = await Comment.find({ articleId: req.params.articleId }).sort({ createdAt: -1 });
+    const articleId = req.params.articleId;
+  
+    // Convertir articleId a ObjectId
+    const objectId = mongoose.Types.ObjectId(articleId);
+  
+    // Buscar comentarios usando el ObjectId
+    const comments = await Comment.find({ articleId: objectId }).sort({ createdAt: -1 });
+  
     res.status(200).json(comments);
   } catch (error) {
+    console.error('Error al obtener comentarios:', error);
     res.status(500).json({ error: 'Error al obtener comentarios.' });
   }
 };
