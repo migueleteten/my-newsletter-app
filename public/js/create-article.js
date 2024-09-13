@@ -176,7 +176,7 @@ function previewImage(event, blockId) {
             ctx.drawImage(img, 0, 0);
 
             // Convertir la imagen del canvas a .webp y base64
-            const webpImageData = canvas.toDataURL('image/webp', 0.8); // Convertir a .webp con calidad 80%
+            const webpImageData = canvas.toDataURL('image/webp', 0.4); // Convertir a .webp con calidad 80%
 
             // Mostrar la imagen convertida como vista previa
             imagePreview.html(`<img src="${webpImageData}" alt="Vista previa" class="responsive-img">`);

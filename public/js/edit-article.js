@@ -1,3 +1,9 @@
+// Variable para mantener los editores Quill
+const quillEditors = {};
+
+// Variable para mantener un contador de bloques
+let blockCount = 0;
+
 // Función para añadir un bloque de contenido existente
 function addExistingContentBlock(type, content) {
     // Incrementar el contador de bloques para asignar IDs únicos
@@ -26,8 +32,8 @@ function addExistingContentBlock(type, content) {
     // Añadir el bloque al contenedor de bloques de contenido
     $('#content-blocks').append(blockHtml);
 
-    // Inicializar el selector de tipo de contenido con Materialize
-    $('select').formSelect();
+    // Inicializar el selector de tipo de contenido con Materialize, evitando que lo de Quill se cambie
+    $('select').not('.ql-header').formSelect();
 
     // Manejar el tipo de bloque (texto o imagen)
     if (type === 'text') {
@@ -50,45 +56,18 @@ function addExistingContentBlock(type, content) {
         quill.root.innerHTML = content;  // Establecer el contenido enriquecido existente
         quillEditors[blockCount] = quill;  // Guardar la instancia de Quill
     } else if (type === 'image') {
+        console.log('bloque de imagen detectado');
         // Añadir el bloque de imagen con la vista previa de la imagen existente
         const imageHtml = `
-            <input type="file" class="image-input" accept="image/*" onchange="handleImageUpload(${blockCount})" />
-            <div class="image-preview">
+            <input type="file" class="image-input" id="block-image-${blockCount}" accept="image/*" onchange="previewImage(event, ${blockCount})" />
+            <div class="image-preview" id="image-preview-${blockCount}">
                 <img src="${content}" alt="Imagen seleccionada" style="max-width: 100%; max-height: 300px;" />
             </div>
         `;
         $(`#block-content-${blockCount}`).append(imageHtml);
-    }
-}
-
-// Rellenar la información de sección y subsección
-function populateSectionAndSubsection(sectionId, subsectionId) {
-    // Obtener el nombre de la sección
-    $.ajax({
-        url: `/api/sections/${sectionId}`,
-        method: 'GET',
-        success: function(section) {
-            $('#section-name').text(`Sección: ${section.title}`);
-        },
-        error: function(err) {
-            console.error('Error al obtener la sección:', err);
-        }
-    });
-
-    // Obtener el nombre de la subsección, si existe
-    if (subsectionId) {
-        $.ajax({
-            url: `/api/sections/${sectionId}/subsections/${subsectionId}`,
-            method: 'GET',
-            success: function(subsection) {
-                $('#subsection-name').text(`Subsección: ${subsection.title}`);
-            },
-            error: function(err) {
-                console.error('Error al obtener la subsección:', err);
-            }
-        });
-    } else {
-        $('#subsection-name').hide(); // Si no hay subsección, ocultar el campo
+    
+        // Guardar la imagen existente en el bloque de contenido
+        $(`#content-block-${blockCount}`).data('webpBase64', content); // Almacenar el contenido base64 en el bloque
     }
 }
 
@@ -138,6 +117,132 @@ function fetchSubsectionName(sectionId, subsectionId) {
     });
 }
 
+// Función para generar la vista previa de la imagen cargada y convertirla a .webp
+function previewImage(event, blockId) {
+    const file = event.target.files[0];
+    const reader = new FileReader();
+
+    reader.onload = function(e) {
+        const imagePreview = $(`#image-preview-${blockId}`);
+        const img = new Image();
+        img.src = e.target.result;
+
+        img.onload = function() {
+            // Crear un canvas para convertir la imagen a .webp
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+
+            // Establecer el tamaño del canvas
+            canvas.width = img.width;
+            canvas.height = img.height;
+
+            // Dibujar la imagen en el canvas
+            ctx.drawImage(img, 0, 0);
+
+            // Convertir la imagen del canvas a .webp y base64
+            const webpImageData = canvas.toDataURL('image/webp', 0.4); // Convertir a .webp con calidad 80%
+
+            // Mostrar la imagen convertida como vista previa
+            imagePreview.html(`<img src="${webpImageData}" alt="Vista previa" class="responsive-img">`);
+
+            // Guardar la imagen convertida en base64 en el bloque de contenido
+            $(`#content-block-${blockId}`).data('webpBase64', webpImageData);
+        };
+    };
+
+    if (file) {
+        reader.readAsDataURL(file); // Leer la imagen como base64
+    }
+}
+
+// Función para añadir un bloque de contenido
+function addContentBlock() {
+    // Incrementar el contador de bloques para asignar IDs únicos
+    blockCount++;
+
+    // Crear el bloque de contenido HTML
+    const blockHtml = `
+        <div class="content-block card-panel" id="content-block-${blockCount}">
+            <div class="input-field">
+                <select class="block-type" onchange="handleBlockTypeChange(${blockCount})">
+                    <option value="" disabled selected>Selecciona tipo de contenido</option>
+                    <option value="text">Texto</option>
+                    <option value="image">Imagen</option>
+                </select>
+                <label>Tipo de Contenido</label>
+            </div>
+            <div class="block-content" id="block-content-${blockCount}">
+                <!-- Aquí se añadirá el contenido específico dependiendo del tipo -->
+            </div>
+            <a href="#!" class="remove-block btn-flat red-text" onclick="removeContentBlock(${blockCount})">
+                <i class="material-icons">delete</i> Eliminar Bloque
+            </a>
+        </div>
+    `;
+
+    // Añadir el bloque al contenedor de bloques de contenido
+    $('#content-blocks').append(blockHtml);
+
+    // Inicializar el selector de tipo de contenido con Materialize, evitando que lo de Quill se cambie
+    $('select').not('.ql-header').formSelect();
+}
+
+// Función para manejar el cambio de tipo de bloque (texto o imagen)
+function handleBlockTypeChange(blockId) {
+    const selectedType = $(`#content-block-${blockId} .block-type`).val();
+    const contentContainer = $(`#block-content-${blockId}`);
+
+    // Limpiar el contenido actual
+    contentContainer.empty();
+
+    // Añadir el contenido dependiendo del tipo seleccionado
+    if (selectedType === 'text') {
+        contentContainer.append(`
+            <div class="input-field">
+                <div id="quill-editor-${blockId}" class="quill-editor" style="height: 200px;"></div>
+            </div>
+        `);
+
+        // Inicializar el editor Quill
+        const quill = new Quill(`#quill-editor-${blockId}`, {
+            theme: 'snow',
+            placeholder: 'Escribe tu texto aquí...',
+            modules: {
+                toolbar: [
+                    [{ 'header': [1, 2, false] }],
+                    ['bold', 'italic', 'underline'], // Negrita, cursiva, subrayado
+                    ['link'], // Enlaces
+                    [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                ]
+            }
+        });
+
+        // Guardar la instancia de Quill en el array para referencia futura
+        quillEditors[blockId] = quill;
+
+    } else if (selectedType === 'image') {
+        contentContainer.append(`
+            <div class="file-field input-field" id="image-input">
+                <div class="btn">
+                    <span>Subir Imagen</span>
+                    <input type="file" id="block-image-${blockId}" accept="image/*" capture="camera" onchange="previewImage(event, ${blockId})">
+                </div>
+                <div class="file-path-wrapper">
+                    <input class="file-path validate" type="text" placeholder="Selecciona una imagen">
+                </div>
+            </div>
+            <div class="image-preview" id="image-preview-${blockId}">
+                <!-- Aquí se mostrará la vista previa de la imagen -->
+            </div>
+        `);
+    }
+}
+
+// Función para eliminar un bloque de contenido
+function removeContentBlock(blockId) {
+    $(`#content-block-${blockId}`).remove();
+}
+
 $(document).ready(function() {
     // Recuperar el ID del artículo del localStorage
     const articleId = localStorage.getItem('articleId');
@@ -178,61 +283,6 @@ $(document).ready(function() {
             M.toast({ html: 'Error al cargar el artículo.' });
         }
     });
-    
-    // Variable para mantener los editores Quill
-    const quillEditors = {};
-
-    // Función para manejar las imágenes con FileReader (promesas para control asincrónico)
-    function readFileAsBase64(file) {
-        return new Promise((resolve, reject) => {
-            const reader = new FileReader();
-            reader.onload = () => resolve(reader.result);
-            reader.onerror = reject;
-            reader.readAsDataURL(file); // Leer como base64
-        });
-    }
-
-    // Función para obtener los bloques de contenido (con Quill)
-    function getContentBlocks() {
-        const contentBlocks = [];
-        const promises = [];
-
-        $('.content-block').each(function() {
-            const blockId = $(this).attr('id').split('-')[2];  // Obtener el ID del bloque
-            const blockType = $(this).find('.block-type').val();
-
-            if (blockType === 'text') {
-                const quill = quillEditors[blockId];  // Recuperar la instancia de Quill
-                const richTextContent = quill.root.innerHTML;  // Obtener el contenido HTML generado por Quill
-                contentBlocks.push({
-                    type: 'text',
-                    content: richTextContent  // Guardar el contenido HTML enriquecido
-                });
-            } else if (blockType === 'image') {
-                const imageFile = $(this).find('input[type="file"]')[0].files[0];
-
-                if (imageFile) {
-                    // Si hay una nueva imagen, leerla y agregarla
-                    const imagePromise = readFileAsBase64(imageFile).then(base64Image => {
-                        contentBlocks.push({
-                            type: 'image',
-                            content: base64Image // Imagen en base64
-                        });
-                    });
-                    promises.push(imagePromise); // Añadir la promesa para esperar
-                } else {
-                    // Si no hay nueva imagen, mantener la imagen existente
-                    const existingImageSrc = $(this).find('img').attr('src');
-                    contentBlocks.push({
-                        type: 'image',
-                        content: existingImageSrc // Mantener la imagen original
-                    });
-                }
-            }
-        });
-
-        return { contentBlocks, promises };
-    }
 
     // Manejar el formulario de edición de artículo
     $('#article-form').on('submit', function(event) {
@@ -240,7 +290,7 @@ $(document).ready(function() {
 
         const title = $('#article-title').val();
         const tags = $('#article-tags').val().split(',').map(tag => tag.trim());
-        const { contentBlocks, promises } = getContentBlocks();
+        const { contentBlocks, promises } = getEditedContentBlocks();
 
         // Verificar que el título está presente
         if (!title) {
@@ -263,8 +313,8 @@ $(document).ready(function() {
                 contentType: 'application/json',
                 data: JSON.stringify({ title, contentBlocks, tags }),
                 success: function() {
-                    M.toast({ html: 'Artículo actualizado correctamente' });
                     window.location.href = '/admin/sections';  // Redirigir de nuevo a la página de secciones
+                    M.toast({ html: 'Artículo actualizado correctamente' });
                 },
                 error: function(err) {
                     console.error('Error al actualizar el artículo:', err);
@@ -279,3 +329,58 @@ $(document).ready(function() {
 
     // Aquí debería haber una función para inicializar Quill, por ejemplo, al cargar bloques existentes.
 });
+
+// Función para manejar las imágenes con FileReader (promesas para control asincrónico)
+function readFileAsBase64(file) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(file); // Leer como base64
+    });
+}
+
+// Función para obtener los bloques de contenido (con Quill)
+function getEditedContentBlocks() {
+    const contentBlocks = [];
+    const promises = [];
+
+    $('.content-block').each(function() {
+        const blockId = $(this).attr('id').split('-')[2];  // Obtener el ID del bloque
+        const blockType = $(this).find('.block-type').val();  // Cambié a data-type para simplificar el uso
+
+        if (blockType === 'text') {
+            const quill = quillEditors[blockId];  // Recuperar la instancia de Quill
+            const richTextContent = quill.root.innerHTML;  // Obtener el contenido HTML generado por Quill
+            contentBlocks.push({
+                type: 'text',
+                content: richTextContent  // Guardar el contenido HTML enriquecido
+            });
+        } else if (blockType === 'image') {
+            const imageFileInput = $(this).find('input[type="file"]')[0];  // Obtener el input de la imagen
+
+            if (imageFileInput && imageFileInput.files.length > 0) {
+                // Convertir la imagen a base64
+                const imagePromise = readFileAsBase64(imageFileInput.files[0]).then(base64Image => {
+                    contentBlocks.push({
+                        type: 'image',
+                        content: base64Image // Imagen en base64
+                    });
+                });
+                promises.push(imagePromise);
+            } else {
+                // Mantener la imagen original si no se ha cambiado
+                const existingImageBase64 = $(this).data('webpBase64');  // Recuperar imagen existente
+                if (existingImageBase64) {
+                    contentBlocks.push({
+                        type: 'image',
+                        content: existingImageBase64 // Imagen en base64 existente
+                    });
+                }
+            }
+        }
+    });
+
+    // Retornar un objeto con los bloques de contenido y las promesas
+    return { contentBlocks, promises };
+}

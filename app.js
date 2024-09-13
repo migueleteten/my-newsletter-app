@@ -13,8 +13,8 @@ connectDB();
 const app = express();
 
 // Aumentar el límite de tamaño del body-parser
-app.use(bodyParser.json({ limit: '10mb' })); // Ajusta el límite según tus necesidades
-app.use(bodyParser.urlencoded({ limit: '10mb', extended: true })); // Para datos en formato x-www-form-urlencoded
+app.use(bodyParser.json({ limit: '100mb' })); // Ajusta el límite según tus necesidades
+app.use(bodyParser.urlencoded({ limit: '100mb', extended: true })); // Para datos en formato x-www-form-urlencoded
 
 // Middleware para manejar datos JSON y urlencoded
 app.use(express.json());
